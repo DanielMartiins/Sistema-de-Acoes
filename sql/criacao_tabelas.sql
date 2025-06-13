@@ -1,7 +1,7 @@
 /* Sistema_Acoes_ModeloLogico: */
 
 CREATE TABLE usuario (
-    id int PRIMARY KEY,
+    id int PRIMARY KEY AUTO_INCREMENT,
     email varchar(320),
     senha_hash varchar(256),
     token_rec_senha varchar(320),
@@ -11,7 +11,7 @@ CREATE TABLE usuario (
 );
 
 CREATE TABLE ordem_venda (
-    id int PRIMARY KEY,
+    id int PRIMARY KEY AUTO_INCREMENT,
     fk_usuario_id int,
     data_hora DATETIME,
     ticker varchar(50),
@@ -24,7 +24,7 @@ CREATE TABLE ordem_venda (
 );
 
 CREATE TABLE ordem_compra (
-    id int PRIMARY KEY,
+    id int PRIMARY KEY AUTO_INCREMENT,
     fk_usuario_id int,
     data_hora DATETIME,
     ticker varchar(50),
@@ -37,7 +37,7 @@ CREATE TABLE ordem_compra (
 );
 
 CREATE TABLE lancamento_conta_corrente (
-    id int,
+    id int AUTO_INCREMENT,
     fk_usuario_id int,
     historico JSON,
     valor FLOAT,
@@ -86,3 +86,5 @@ ALTER TABLE acao_interesse ADD CONSTRAINT FK_acao_interesse_2
     FOREIGN KEY (fk_usuario_id)
     REFERENCES usuario (id)
     ON DELETE CASCADE;
+    
+ 
