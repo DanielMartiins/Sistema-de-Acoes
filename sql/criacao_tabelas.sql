@@ -11,6 +11,8 @@ CREATE TABLE usuario (
 );
 
 CREATE TABLE ordem_venda (
+    id int PRIMARY KEY,
+    fk_usuario_id int,
     data_hora DATETIME,
     ticker varchar(50),
     modo int,
@@ -18,12 +20,12 @@ CREATE TABLE ordem_venda (
     preco_referencia FLOAT,
     executada boolean,
     preco_execucao FLOAT,
-    data_hora_execucao DATETIME,
-    id int PRIMARY KEY,
-    fk_usuario_id int
+    data_hora_execucao DATETIME
 );
 
 CREATE TABLE ordem_compra (
+    id int PRIMARY KEY,
+    fk_usuario_id int,
     data_hora DATETIME,
     ticker varchar(50),
     quantidade int,
@@ -31,33 +33,32 @@ CREATE TABLE ordem_compra (
     preco_referencia FLOAT,
     executada BOOLEAN,
     preco_execucao FLOAT,
-    data_hora_execucao DATETIME,
-    fk_usuario_id int
+    data_hora_execucao DATETIME
 );
 
 CREATE TABLE lancamento_conta_corrente (
     id int,
+    fk_usuario_id int,
     historico JSON,
     valor FLOAT,
     data_hora DATETIME,
-    fk_usuario_id int,
     PRIMARY KEY (id, fk_usuario_id)
 );
 
 CREATE TABLE acao_carteira (
     ticker varchar(50),
+    fk_usuario_id int,
     qtde int,
     preco_compra FLOAT,
     qtde_vendida int,
     preco_venda FLOAT,
-    fk_usuario_id int,
     PRIMARY KEY (ticker, fk_usuario_id)
 );
 
 CREATE TABLE acao_interesse (
     ticker varchar(50),
-    ordem int,
     fk_usuario_id int,
+    ordem int,
     PRIMARY KEY (ticker, fk_usuario_id)
 );
  
@@ -66,7 +67,7 @@ ALTER TABLE ordem_venda ADD CONSTRAINT FK_ordem_venda_2
     REFERENCES usuario (id)
     ON DELETE CASCADE;
  
-ALTER TABLE ordem_compra ADD CONSTRAINT FK_ordem_compra_1
+ALTER TABLE ordem_compra ADD CONSTRAINT FK_ordem_compra_2
     FOREIGN KEY (fk_usuario_id)
     REFERENCES usuario (id)
     ON DELETE CASCADE;
