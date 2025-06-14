@@ -6,7 +6,7 @@ CREATE TABLE usuario (
     senha_hash varchar(256),
     token_rec_senha varchar(320),
     numero_falhas_login int,
-    ultima_hora_negociacao DATETIME,
+    ultima_hora_negociacao TIME,
     data_token_rec_senha DATETIME
 );
 
