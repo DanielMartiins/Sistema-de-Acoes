@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const getConnection = require('../config/db.js');
-
+const getConnection = require('../model/db.js');
 
 /* 
 * NÃO ESTÁ COMPLETO! 
