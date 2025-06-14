@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const getConnection = require('../config/db.js');
 
+
 /* 
 * NÃO ESTÁ COMPLETO! 
 * Precisamos implementar a parte de login para que faça a autenticação nesse endpoint. Fiz
@@ -13,7 +14,7 @@ router.get('/listaCarteira', async function(req,res) {
     let db;
     try {
         db = await getConnection();
-        let queryString = "SELECT ticker, qtde FROM acao_carteira WHERE fk_usuario_id = ?"
+        let queryString = "SELECT * FROM acao_carteira WHERE fk_usuario_id = ?"
         let data = [id];
 
         let result = await db.query(queryString, data);
