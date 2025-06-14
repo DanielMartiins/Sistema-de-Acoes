@@ -2,8 +2,12 @@ var express = require('express');
 var app = express();
 
 
-app.get('/', function(req,res) {
-    res.send("Está rodando!");
-});
+var bodyParser = require('body-parser');
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
+
+
+var olaMundo = require('./controller/olamundo.js');
+app.use('/olamundo', olaMundo);
 
 app.listen(3000);
