@@ -13,7 +13,7 @@ router.get('/listaCarteira', async function(req,res) {
     let db;
     try {
         db = await getConnection();
-        let queryString = "SELECT * FROM acao_carteira WHERE fk_usuario_id = ?"
+        let queryString = "SELECT ticker, qtde, preco_compra, qtde_vendida, preco_venda FROM acao_carteira WHERE fk_usuario_id = ?"
         let data = [id];
 
         let result = await db.query(queryString, data);
