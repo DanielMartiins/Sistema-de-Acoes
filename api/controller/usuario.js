@@ -12,7 +12,7 @@ const getConnection = require('../model/dbConnection.js');
  * Também precisar fazer o que o prof pediu de mostrar 10 itens aleatórios na lista do usuário recém criado
  * O registro de usuário está funcional
  */
-router.post('/conta', async function (req, res) {
+router.post('/criarConta', async function (req, res) {
     var email = req.body.email;
     var senha = req.body.senha;
     var senhaRepetida = req.body.senhaRepetida;
