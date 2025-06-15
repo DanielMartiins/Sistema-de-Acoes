@@ -6,6 +6,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const getConnection = require('../model/dbConnection.js');
 const crypto = require('crypto');
+const { verifyToken } = require('../auth/jwtAuth.js');
 
 //Criar conta
 /*
@@ -233,7 +234,60 @@ router.post('/senha/token', async function (req, res) {
     }
 });
 
+//Mudança de senha
+router.put('/senha', async function (req, res) {
+    const { senha_atual, nova_senha } = req.body;
 
+    // Verifica e decodifica o token
+    const payload = verifyToken(req, res);
+    if (!payload || !payload.user_id) {
+        return res.status(401).json({ mensagem: 'Token inválido ou ausente.' });
+    }
+
+    const userId = payload.user_id;
+
+    // Valida a nova senha
+    if (!verificaSenhaValida(nova_senha)) {
+        return res.status(400).json({
+            mensagem: 'Nova senha inválida. Deve conter ao menos 8 caracteres, letras e números.'
+        });
+    }
+
+    try {
+        const db = await getConnection();
+
+        const resultado = await db.query(
+            `SELECT senha_hash FROM usuario WHERE id = ? LIMIT 1;`,
+            [userId]
+        );
+
+        const usuario = resultado[0][0];
+        if (!usuario) {
+            await db.end();
+            return res.status(404).json({ mensagem: 'Usuário não encontrado.' });
+        }
+
+        const senhaConfere = await bcrypt.compare(senha_atual, usuario.senha_hash);
+        if (!senhaConfere) {
+            await db.end();
+            return res.status(400).json({ mensagem: 'Senha atual incorreta.' });
+        }
+
+        const novaSenhaHash = await bcrypt.hash(nova_senha, 10);
+
+        await db.query(
+            `UPDATE usuario SET senha_hash = ? WHERE id = ?;`,
+            [novaSenhaHash, userId]
+        );
+
+        await db.end();
+        res.json({ mensagem: 'Senha alterada.' });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ mensagem: 'Erro no servidor ao trocar senha.' });
+    }
+});
 //
 // Verifica se um e-mail é válido
 //
@@ -245,6 +299,9 @@ function verificaEmailValido(email) {
     return /^[A-Za-z0-9._%-]+@([A-Za-z0-9-].)+[A-Za-z]{2,4}$/.test(email);
 }
 
+//
+// Verifica se a senha é válida
+//
 function verificaSenhaValida(senha) {
     if (!senha) {
         return false;
