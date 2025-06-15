@@ -8,12 +8,13 @@ const getConnection = require('../model/dbConnection.js');
 desse jeito mais na intenção de já fazer a consulta
 * Também preciso mostrar algumas informações que ainda não estou mostrando: Mecanismo de atualização de preços, ganhos e perdas do usuário, etc
 */
-router.get('/listaCarteira', async function(req,res) {
+router.get('/listaCarteira', async function (req, res) {
     const id = req.query.id;
     let db;
     try {
         db = await getConnection();
-        let queryString = "SELECT ticker, qtde, preco_compra, qtde_vendida, preco_venda FROM acao_carteira WHERE fk_usuario_id = ?"
+        let queryString =
+            'SELECT ticker, qtde, preco_compra, qtde_vendida, preco_venda FROM acao_carteira WHERE fk_usuario_id = ?';
         let data = [id];
 
         let result = await db.query(queryString, data);
@@ -21,7 +22,7 @@ router.get('/listaCarteira', async function(req,res) {
         res.json(result);
     } catch (err) {
         console.error(err);
-        res.status(500).json({message: 'Ocorreu um erro no servidor'});
+        res.status(500).json({ message: 'Ocorreu um erro no servidor' });
     }
 });
 
