@@ -91,4 +91,8 @@ router.post('/login', async function (req, res) {
     }
 });
 
+//Logout
+router.post('/logout', function (req, res) {
+    res.status(204).send();
+});
 module.exports = router;
