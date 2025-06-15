@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const getConnection = require('../model/db.js');
+const getConnection = require('../model/dbConnection.js');
 
 /* 
 * NÃO ESTÁ COMPLETO! 
@@ -20,7 +20,8 @@ router.get('/listaCarteira', async function(req,res) {
         await db.end();
         res.json(result);
     } catch (err) {
-        res.status(400).json(err);
+        console.error(err);
+        res.status(500).json({message: 'Ocorreu um erro no servidor'});
     }
 });
 
