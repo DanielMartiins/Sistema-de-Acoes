@@ -2,11 +2,12 @@ var express = require('express');
 var router = express.Router();
 const getConnection = require('../model/dbConnection.js');
 const auth = require('../auth/auth.js');
-/*
+
+/* Endpoint para listar a carteira
  * NÃO ESTÁ COMPLETO!
  * Preciso mostrar algumas informações que ainda não estou mostrando: Mecanismo de atualização de preços, ganhos e perdas do usuário, etc
  */
-router.get('/listaCarteira', async function (req, res) {
+router.get('/', async function (req, res) {
     const claims = auth.verifyToken(req, res);
     if (!claims) {
         res.status(401).json({ message: 'Acesso não autorizado.' });
