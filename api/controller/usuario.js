@@ -14,8 +14,9 @@ router.post('/conta', async function(req, res){
     var senha_hash = await bcrypt.hash(senha, 10);
 
     /*
-    * OBS: Ainda precisa fazer toda a verificação para ver se os dados inseridos na requisição são válidos!!!
+    * OBS: Ainda precisa fazer toda a verificação para ver se os dados inseridos na requisição são válidos!!! 
     * Também precisar fazer o que o prof pediu de mostrar 10 itens aleatórios na lista do usuário recém criado
+    * O registro de usuário está funcional
     */
 
     try {
