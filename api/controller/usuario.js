@@ -6,7 +6,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const getConnection = require('../model/dbConnection.js');
 const crypto = require('crypto');
-const { verifyToken } = require('../auth/jwtAuth.js');
+const { verifyToken } = require('../auth/auth.js');
 
 //Criar conta
 /*
