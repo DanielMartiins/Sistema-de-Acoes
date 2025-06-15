@@ -19,10 +19,13 @@ router.post('/criarConta', async function (req, res) {
     var senha_hash = await bcrypt.hash(senha, 10);
     var db = await getConnection();
     const resultado = await db.query(
-        'SELECT * FROM usuario WHERE email = ? LIMIT 1;',
+        'SELECT email FROM usuario WHERE email = ?;',
         [email]
     );
-    const usuarioEmail = resultado[0][0];
+
+
+    let usuarioEmail = null;
+    if (resultado) usuarioEmail = resultado;
 
     if (usuarioEmail) {
         res.status(400).json({message: "Já existe um usuário registrado com este e-mail."});
