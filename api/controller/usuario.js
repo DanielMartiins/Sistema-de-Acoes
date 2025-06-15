@@ -25,12 +25,9 @@ router.post('/criarConta', async function (req, res) {
         [email]
     );
     if (usuarioEmail[0] && usuarioEmail[0].length > 0) {
-        if (usuarioEmail) {
         res.status(400).json({message: "Já existe um usuário registrado com este e-mail."});
         return;
-        }
     }
-
 
     if (!verificaEmailValido(email)) {
         return res.status(400).json({ message: 'Email inválido.' });
