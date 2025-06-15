@@ -17,6 +17,24 @@ router.post('/criarConta', async function (req, res) {
     var senha = req.body.senha;
     var senhaRepetida = req.body.senhaRepetida;
     var senha_hash = await bcrypt.hash(senha, 10);
+    var usuarioEmail = await db.usuario.findOne({ email: email }).exec();
+
+    if (usuarioEmail) {
+        res.status(400).json({message: "Já existe um usuário registrado com este e-mail."});
+        return;
+    }
+
+    if (!verificaEmailValido(email)) {
+        return res.status(400).json({ message: 'Email inválido.' });
+    }
+
+    if (!verificaSenhaValida(senha)) {
+        return res.status(400).json({ message: 'Senha inválida. Deve conter ao menos 8 caracteres alfanuméricos.' });
+    }
+
+    if (senha !== senhaRepetida) {
+        return res.status(400).json({ message: 'As senhas não coincidem.' });
+    }
 
     try {
         var db = await getConnection();
@@ -42,6 +60,11 @@ router.post('/criarConta', async function (req, res) {
 router.post('/login', async function (req, res) {
     var email = req.body.email;
     var senha = req.body.senha;
+
+    
+    if (!verificaEmailValido(email)) {
+        return res.status(400).json({ message: 'Email inválido.' });
+    }
 
     try {
         var db = await getConnection();
@@ -95,4 +118,28 @@ router.post('/login', async function (req, res) {
 router.post('/logout', function (req, res) {
     res.status(204).send();
 });
+
+
+//
+// Verifica se um e-mail é válido
+//
+function verificaEmailValido(email) {
+    if (!email) {
+        return false;
+    }
+    
+    return /^[A-Za-z0-9._%-]+@([A-Za-z0-9-].)+[A-Za-z]{2,4}$/.test(email);
+}
+
+function verificaSenhaValida(senha) {
+    if (!senha) {
+        return false;
+    }
+
+    if (senha.length < 8) {
+        return false;
+    }
+    
+    return /.*[a-zA-Z].*$/.test(senha) && /.*[0-9].*$/.test(senha);
+}
 module.exports = router;
