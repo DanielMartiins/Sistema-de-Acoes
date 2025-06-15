@@ -17,6 +17,7 @@ router.post('/criarConta', async function (req, res) {
     var senha = req.body.senha;
     var senhaRepetida = req.body.senhaRepetida;
     var senha_hash = await bcrypt.hash(senha, 10);
+    var db = await getConnection();
     const resultado = await db.query(
         'SELECT * FROM usuario WHERE email = ? LIMIT 1;',
         [email]
@@ -41,7 +42,6 @@ router.post('/criarConta', async function (req, res) {
     }
 
     try {
-        var db = await getConnection();
         var usuario = await db.query(
             `
                 INSERT INTO usuario (email, senha_hash, numero_falhas_login, ultima_hora_negociacao) 
