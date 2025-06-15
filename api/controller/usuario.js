@@ -52,11 +52,12 @@ router.post('/login', async function (req, res) {
             WHERE usuario.email = ?;`,
             [email]
         );
+        usuario = usuario[0];
         if (!usuario) {
             res.status(400).json('Dados inválidos.');
             return;
         }
-        var senhaCorreta = bcrypt.compare(senha, usuario[0].senha_hash);
+        var senhaCorreta = bcrypt.compare(senha, usuario.senha_hash);
         if (!senhaCorreta) {
             await db.query(
                 `UPDATE usuario 
