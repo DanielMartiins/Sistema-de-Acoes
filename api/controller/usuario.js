@@ -24,7 +24,7 @@ router.post('/criarConta', async function (req, res) {
         'SELECT email FROM usuario WHERE email = ?;',
         [email]
     );
-    if (usuarioEmail[0] && usuarioEmail[0].length > 0) {
+    if ( usuarioEmail[0].length > 0) {
         res.status(400).json({message: "Já existe um usuário registrado com este e-mail."});
         return;
     }
