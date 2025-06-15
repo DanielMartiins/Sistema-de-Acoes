@@ -5,6 +5,7 @@ const config = require('../config/config.js');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const getConnection = require('../model/dbConnection.js');
+const crypto = require('crypto');
 
 //Criar conta
 /*
@@ -17,11 +18,11 @@ router.post('/criarConta', async function (req, res) {
     var senha = req.body.senha;
     var senhaRepetida = req.body.senhaRepetida;
     var senha_hash = await bcrypt.hash(senha, 10);
-    const resultado = await db.query(
+    var resultado = await db.query(
         'SELECT * FROM usuario WHERE email = ? LIMIT 1;',
         [email]
     );
-    const usuarioEmail = resultado[0][0];
+    var usuarioEmail = resultado[0];
 
     if (usuarioEmail) {
         res.status(400).json({message: "Já existe um usuário registrado com este e-mail."});
@@ -121,6 +122,116 @@ router.post('/login', async function (req, res) {
 //Logout
 router.post('/logout', function (req, res) {
     res.status(204).send();
+});
+//Recuperação/Redefinição de senha
+router.post('/senha/recuperar', async function (req, res) {
+    const { email, token, nova_senha } = req.body;
+
+    // Validação básica dos dados
+    if (!verificaEmailValido(email)) {
+        return res.status(400).json({ mensagem: 'Email inválido.' });
+    }
+
+    if (!verificaSenhaValida(nova_senha)) {
+        return res.status(400).json({ mensagem: 'Senha inválida. Deve conter ao menos 8 caracteres, letras e números.' });
+    }
+
+    try {
+        const db = await getConnection();
+
+        // Verifica se o token existe e ainda está válido
+        const resultado = await db.query(
+            `
+            SELECT id, data_token_rec_senha 
+            FROM usuario 
+            WHERE email = ? AND token_rec_senha = ?;
+            `,
+            [email, token]
+        );
+
+        const usuario = resultado[0];
+
+        if (!usuario) {
+            await db.end();
+            return res.status(400).json({ mensagem: 'Token ou email inválido.' });
+        }
+
+        // Verifica validade temporal do token (ex: 1h de validade)
+        const agora = new Date();
+        const dataToken = new Date(usuario.data_token_rec_senha);
+        const umaHora = 60 * 60 * 1000;
+
+        if (agora - dataToken > umaHora) {
+            await db.end();
+            return res.status(400).json({ mensagem: 'Token expirado.' });
+        }
+
+        // Atualiza a senha
+        const novaSenhaHash = await bcrypt.hash(nova_senha, 10);
+
+        await db.query(
+            `
+            UPDATE usuario 
+            SET senha_hash = ?, token_rec_senha = NULL, data_token_rec_senha = NULL 
+            WHERE id = ?;
+            `,
+            [novaSenhaHash, usuario.id]
+        );
+
+        await db.end();
+        res.json({ mensagem: 'Senha atualizada com sucesso.' });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ mensagem: 'Erro no servidor ao recuperar senha.' });
+    }
+});
+//Token de Nova senha
+
+router.post('/senha/token', async function (req, res) {
+    var email = req.body.email;
+
+    if (!verificaEmailValido(email)) {
+        return res.status(400).json({ mensagem: 'Email inválido.' });
+    }
+
+    try {
+        var db = await getConnection();
+
+        // Verifica se o usuário existe
+        var resultado = await db.query(
+            `SELECT id FROM usuario WHERE email = ?;`,
+            [email]
+        );
+
+        var usuario = resultado[0];
+        if (!usuario) {
+            await db.end();
+            return res.status(404).json({ mensagem: 'Usuário não encontrado.' });
+        }
+
+        // Geração de token aleatório (pode ser alfanumérico)
+        var token = crypto.randomBytes(16).toString('hex');
+        var agora = new Date();
+
+        await db.query(
+            `UPDATE usuario 
+             SET token_rec_senha = ?, data_token_rec_senha = ? 
+             WHERE id = ?;`,
+            [token, agora, usuario.id]
+        );
+
+        await db.end();
+
+        // Simulação de envio de e-mail — pode ser trocado por integração real
+        console.log(`Token de recuperação para ${email}: ${token}`);
+
+        res.json({ mensagem: 'Token enviado para o e-mail.' });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ mensagem: 'Erro no servidor ao gerar token.' });
+    }
 });
 
 
