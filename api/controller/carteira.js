@@ -29,17 +29,17 @@ router.get('/', async function (req, res) {
             id
         );
 
-        //console.log(query_acao_carteira);
-        await calcularPerdaOuGanho(query_acao_carteira, id);
+        //await calcularPerdaOuGanho(query_acao_carteira, id);
 
         await db.end();
-        res.json({ message: 'Listado carteira com sucesso' });
+        res.json({query_acao_carteira});
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Ocorreu um erro no servidor' });
     }
 });
 
+//Mecanismo para calcular ganhos do usuário, deixarei de lado por enquanto e farei os outros endpoints
 async function calcularPerdaOuGanho(acoes_carteira, usuario_id) {
     let db = await getConnection();
     console.log('Conectou\n');
@@ -76,7 +76,8 @@ async function calcularPerdaOuGanho(acoes_carteira, usuario_id) {
     preco_atual_acoes = preco_atual_acoes.filter((acao) => tickersCarteira.has(acao.ticker));
 
     acoes_carteira.forEach(acao => {
-        let qtde_vendida = acao.qtde_vendida;
+        let qtdeVendida = acao.qtde_vendida;
+        let precoAtual = preco_atual_acoes.find(p => p.ticker === acao) 
         acao.ganho = acao.preco_venda
     })
 
