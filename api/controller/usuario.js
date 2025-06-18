@@ -45,8 +45,8 @@ router.post('/criarConta', async function (req, res) {
     try {
         var usuario = await db.query(
             `
-                INSERT INTO usuario (email, senha_hash, numero_falhas_login, ultima_hora_negociacao) 
-                VALUES (?, ?, 0, CONCAT(DATE(NOW()), ' 14:00:00'));
+                INSERT INTO usuario (email, senha_hash, saldo, numero_falhas_login, ultima_hora_negociacao) 
+                VALUES (?, ?, 0, 0, CONCAT(DATE(NOW()), ' 14:00:00'));
             `,
             [email, senha_hash]
         );
