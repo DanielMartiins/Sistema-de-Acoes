@@ -4,6 +4,7 @@ CREATE TABLE usuario (
     id int PRIMARY KEY AUTO_INCREMENT,
     email varchar(320),
     senha_hash varchar(256),
+    saldo FLOAT,
     token_rec_senha varchar(320),
     numero_falhas_login int,
     ultima_hora_negociacao DATETIME,
@@ -37,8 +38,8 @@ CREATE TABLE ordem_compra (
 );
 
 CREATE TABLE lancamento_conta_corrente (
-    id int AUTO_INCREMENT,
     fk_usuario_id int,
+    id int AUTO_INCREMENT,
     historico JSON,
     valor FLOAT,
     data_hora DATETIME,
