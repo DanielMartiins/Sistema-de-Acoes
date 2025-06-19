@@ -61,6 +61,18 @@ BEGIN
             p_preco_execucao * v_quantidade,
             v_data_hora_execucao
         );
+
+        -- 6. Atualizar informações na carteira do usuário 
+        UPDATE acao_carteira
+        SET 
+            -- Nova média
+            preco_venda =
+            (preco_venda * qtde_vendida + (v_quantidade * p_preco_execucao))
+            /(qtde_vendida + v_quantidade),
+            
+            -- Incrementar quantidade vendida
+            qtde_vendida = qtde_vendida + v_quantidade
+        WHERE ticker = v_ticker AND fk_usuario_id = p_id_usuario;
     COMMIT;
 END$$
 
