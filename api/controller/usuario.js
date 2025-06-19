@@ -65,7 +65,6 @@ router.post('/criarConta', async function (req, res) {
 router.post('/login', async function (req, res) {
     var email = req.body.email;
     var senha = req.body.senha;
-
     
     if (!verificaEmailValido(email)) {
         return res.status(400).json({ message: 'Email inválido.' });
@@ -80,12 +79,12 @@ router.post('/login', async function (req, res) {
             WHERE usuario.email = ?;`,
             [email]
         );
-        usuario = usuario[0];
+        usuario = usuario[0][0];
         if (!usuario) {
             res.status(400).json('Dados inválidos.');
             return;
         }
-        var senhaCorreta = bcrypt.compare(senha, usuario.senha_hash);
+        var senhaCorreta = await bcrypt.compare(senha, usuario.senha_hash);
         if (!senhaCorreta) {
             await db.query(
                 `UPDATE usuario 
@@ -112,7 +111,6 @@ router.post('/login', async function (req, res) {
             { expiresIn: '2h' }
         );
         res.json({ message: 'Login bem sucedido', token });
-        await db.end();
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Erro no servidor ao logar' });
