@@ -7,6 +7,11 @@ CREATE PROCEDURE executar_ordem_venda (
     IN p_preco_execucao FLOAT
 )
 BEGIN
+
+    DECLARE v_data_hora_execucao DATETIME;
+    DECLARE v_ticker VARCHAR(50);
+    DECLARE v_quantidade INT;
+
     /* O handler abaixo é feito para garantir que ou todos os 
     comandos da transação a seguir executem com sucesso ou desfaça tudo.
     "EXIT" significa que o controle deve sair imediatamente de onde está,
@@ -16,12 +21,7 @@ BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         ROLLBACK;
-    END;
-
-    DECLARE v_data_hora_execucao DATETIME;
-    DECLARE v_ticker VARCHAR(50);
-    DECLARE v_quantidade INT;
-
+    END;    
     START TRANSACTION;
 
         -- 1. Buscar data de execução da venda
@@ -56,8 +56,7 @@ BEGIN
             JSON_OBJECT(
                 'ticker', v_ticker,
                 'quantidade', v_quantidade,
-                'precoExecucao', p_preco_execucao,
-                'dataHoraExecucao', v_data_hora_execucao
+                'precoExecucao', p_preco_execucao
             ),
             p_preco_execucao * v_quantidade,
             v_data_hora_execucao
