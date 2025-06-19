@@ -1,4 +1,4 @@
-const mysql = require("promise-mysql");
+const mysql = require("mysql2/promise");
 const config = require("../config/config.js");
 async function getConnection() {
     const dbConfig = config.database;
