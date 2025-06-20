@@ -16,4 +16,4 @@ async function obterMinutoNegociacaoUsuario(idUsuario) {
 
 module.exports = {
     obterMinutoNegociacaoUsuario,
-}
+};
