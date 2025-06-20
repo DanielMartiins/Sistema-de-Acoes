@@ -20,8 +20,17 @@ BEGIN
     */
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
-        ROLLBACK;
-    END;    
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Erro customizado: condição inválida.';
+	    ROLLBACK;
+    END;
+
+	IF (p_id_usuario IS NULL OR
+        p_id_ordem_venda IS NULL OR
+        p_preco_execucao IS NULL) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'ERRO: Valor(es) nulo(s).';
+    END IF;
+
+
     START TRANSACTION;
 
         -- 1. Buscar data de execução da venda
@@ -70,10 +79,11 @@ BEGIN
             (preco_venda * qtde_vendida + (v_quantidade * p_preco_execucao))
             /(qtde_vendida + v_quantidade),
             
-            -- Incrementar quantidade vendida
             qtde_vendida = qtde_vendida + v_quantidade
         WHERE ticker = v_ticker AND fk_usuario_id = p_id_usuario;
     COMMIT;
 END$$
 
 DELIMITER ;
+
+
