@@ -117,7 +117,7 @@ router.post('/login', async function (req, res) {
 router.post('/logout', function (req, res) {
     res.status(204).send();
 });
-//Recuperação/Redefinição de senha
+//Recuperação/Redefinição de senha (Quando a senha atual é esquecida)
 router.post('/senha/recuperar', async function (req, res) {
     const { email, token, novaSenha } = req.body;
 
@@ -228,9 +228,10 @@ router.post('/senha/token', async function (req, res) {
     }
 });
 
-//Mudança de senha
+//Mudança de senha (quando Logado)
 router.put('/senha', async function (req, res) {
-    const { senha_atual, nova_senha } = req.body;
+    var senhaAtual = req.body.senhaAtual;
+    var novaSenha = req.body.novaSenha;
 
     // Verifica e decodifica o token
     const payload = verifyToken(req, res);
@@ -241,7 +242,7 @@ router.put('/senha', async function (req, res) {
     const userId = payload.user_id;
 
     // Valida a nova senha
-    if (!verificaSenhaValida(nova_senha)) {
+    if (!verificaSenhaValida(novaSenha)) {
         return res.status(400).json({
             mensagem: 'Nova senha inválida. Deve conter ao menos 8 caracteres, letras e números.'
         });
@@ -261,13 +262,13 @@ router.put('/senha', async function (req, res) {
             return res.status(404).json({ mensagem: 'Usuário não encontrado.' });
         }
 
-        const senhaConfere = await bcrypt.compare(senha_atual, usuario.senha_hash);
+        const senhaConfere = await bcrypt.compare(senhaAtual, usuario.senha_hash);
         if (!senhaConfere) {
             await db.end();
             return res.status(400).json({ mensagem: 'Senha atual incorreta.' });
         }
 
-        const novaSenhaHash = await bcrypt.hash(nova_senha, 10);
+        const novaSenhaHash = await bcrypt.hash(novaSenha, 10);
 
         await db.query(
             `UPDATE usuario SET senha_hash = ? WHERE id = ?;`,

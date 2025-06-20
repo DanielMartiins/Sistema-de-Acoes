@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const getConnection = require('../model/dbConnection.js');
-const { verifyToken } = require('../auth/jwtAuth.js');
+const getConnection = require('../../model/dbConnection.js');
+const { verifyToken } = require('../../auth/auth.js');
 
 router.post('/ordens/compra', async function (req, res) {
     const payload = verifyToken(req, res);
@@ -9,8 +9,12 @@ router.post('/ordens/compra', async function (req, res) {
         return res.status(401).json({ mensagem: 'Token inválido ou ausente.' });
     }
 
-    const userId = payload.user_id;
-    const { ticker, quantidade, modo, preco_referencia } = req.body;
+    var userId = payload.user_id;
+    var ticker = req.body.ticker;
+    var quantidade = req.body.quantidade;
+    var modo = req.body.modo;
+    var preco_referencia = req.body.preco_referencia;
+    
 
     // Validação de dados
     if (!ticker || typeof ticker !== 'string' || ticker.length > 50) {
@@ -25,7 +29,7 @@ router.post('/ordens/compra', async function (req, res) {
         return res.status(400).json({ mensagem: 'Modo deve ser "limite" ou "mercado".' });
     }
 
-    const modoInt = modo === 'limite' ? 1 : 0;
+    var modoInt = modo === 'limite' ? 1 : 0;
 
     if (modoInt === 1 && (typeof preco_referencia !== 'number' || preco_referencia <= 0)) {
         return res.status(400).json({ mensagem: 'Preço de referência inválido para modo limite.' });
@@ -34,7 +38,7 @@ router.post('/ordens/compra', async function (req, res) {
     try {
         const db = await getConnection();
 
-        const agora = new Date();
+        var agora = new Date();
 
         await db.query(
             `
