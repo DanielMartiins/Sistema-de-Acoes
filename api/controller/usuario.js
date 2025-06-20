@@ -10,7 +10,6 @@ const { verifyToken } = require('../auth/auth.js');
 
 //Criar conta
 /*
- * OBS: Ainda precisa fazer toda a verificação para ver se os dados inseridos na requisição são válidos!!!
  * Também precisar fazer o que o prof pediu de mostrar 10 itens aleatórios na lista do usuário recém criado
  * O registro de usuário está funcional
  */
@@ -59,9 +58,6 @@ router.post('/criarConta', async function (req, res) {
 });
 
 //Realizar login
-/*
- * OBS: Ainda precisa fazer toda a verificação para ver se os dados inseridos na requisição são válidos!!!
- */
 router.post('/login', async function (req, res) {
     var email = req.body.email;
     var senha = req.body.senha;
@@ -125,14 +121,14 @@ router.post('/logout', function (req, res) {
 });
 //Recuperação/Redefinição de senha
 router.post('/senha/recuperar', async function (req, res) {
-    const { email, token, nova_senha } = req.body;
+    const { email, token, novaSenha } = req.body;
 
     // Validação básica dos dados
     if (!verificaEmailValido(email)) {
         return res.status(400).json({ mensagem: 'Email inválido.' });
     }
 
-    if (!verificaSenhaValida(nova_senha)) {
+    if (!verificaSenhaValida(novaSenha)) {
         return res.status(400).json({ mensagem: 'Senha inválida. Deve conter ao menos 8 caracteres, letras e números.' });
     }
 
@@ -167,7 +163,7 @@ router.post('/senha/recuperar', async function (req, res) {
         }
 
         // Atualiza a senha
-        const novaSenhaHash = await bcrypt.hash(nova_senha, 10);
+        const novaSenhaHash = await bcrypt.hash(novaSenha, 10);
 
         await db.query(
             `
