@@ -2,131 +2,89 @@ const express = require('express');
 const router = express.Router();
 const getConnection = require('../../model/dbConnection.js');
 const { verifyToken } = require('../../auth/auth.js');
+const { obterMinutoNegociacaoUsuario } = require('../../utils/negociacaoUsuario.js');
+const { obterPrecoMercado } = require('../../utils/precoMercado.js');
 
-router.post('/ordens/compra', async function (req, res) {
-    const payload = verifyToken(req, res);
-    if (!payload || !payload.user_id) {
-        return res.status(401).json({ mensagem: 'Token inválido ou ausente.' });
-    }
+const {
+    MODO_OPERACAO_MERCADO,
+    MODO_OPERACAO_LIMITADA,
+} = require('../../constants/modoOperacao.js');
 
-    var userId = payload.user_id;
-    var ticker = req.body.ticker;
-    var quantidade = req.body.quantidade;
-    var modo = req.body.modo;
-    var preco_referencia = req.body.preco_referencia;
-    
+// Compra a mercado
+router.post('/mercado', async (req, res) => {
+    const claims = verifyToken(req, res);
+    if (!claims) return res.status(401).json({ message: 'Acesso não autorizado.' });
 
-    // Validação de dados
-    if (!ticker || typeof ticker !== 'string' || ticker.length > 50) {
-        return res.status(400).json({ mensagem: 'Ticker inválido.' });
-    }
+    const idUsuario = claims.user_id;
+    const ticker = req.body.ticker;
+    const quantidade = parseInt(req.body.quantidade);
 
-    if (!quantidade || typeof quantidade !== 'number' || quantidade <= 0) {
-        return res.status(400).json({ mensagem: 'Quantidade inválida.' });
-    }
-
-    if (!['limite', 'mercado'].includes(modo)) {
-        return res.status(400).json({ mensagem: 'Modo deve ser "limite" ou "mercado".' });
-    }
-
-    var modoInt = modo === 'limite' ? 1 : 0;
-
-    if (modoInt === 1 && (typeof preco_referencia !== 'number' || preco_referencia <= 0)) {
-        return res.status(400).json({ mensagem: 'Preço de referência inválido para modo limite.' });
-    }
+    if (!ticker || ticker.trim() === '') return res.status(400).json({ message: 'Ticker inválido.' });
+    if (!quantidade || quantidade <= 0) return res.status(400).json({ message: 'Quantidade inválida.' });
 
     try {
+        const minuto = await obterMinutoNegociacaoUsuario(idUsuario);
+        const precoAtual = await obterPrecoMercado(ticker, minuto);
+
         const db = await getConnection();
-
-        var agora = new Date();
-
-        await db.query(
-            `
-            INSERT INTO ordem_compra 
-                (fk_usuario_id, data_hora, ticker, quantidade, modo, preco_referencia, executada, preco_execucao, data_hora_execucao)
-            VALUES (?, ?, ?, ?, ?, ?, false, NULL, NULL);
-            `,
-            [
-                userId,
-                agora,
-                ticker,
-                quantidade,
-                modoInt,
-                modoInt === 1 ? preco_referencia : null
-            ]
+        const [resultado] = await db.query(
+            `CALL registrar_ordem_compra(?, ?, ?, ?, ?)`,
+            [idUsuario, ticker, MODO_OPERACAO_MERCADO, quantidade, precoAtual]
         );
 
+        const idOrdemCompra = resultado[0][0].insertId;
+
+        await executarOrdemCompra(idUsuario, idOrdemCompra, precoAtual);
         await db.end();
 
-        res.status(201).json({ mensagem: 'Ordem de compra registrada com sucesso.' });
-
+        res.json({ message: 'Ordem de compra registrada e executada com sucesso.' });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ mensagem: 'Erro ao registrar ordem de compra.' });
+        res.status(500).json({ message: 'Erro ao registrar ou executar ordem de compra.' });
     }
 });
 
-router.put('/ordens/compra/:id/executar', async function (req, res) {
-    const payload = verifyToken(req, res);
-    if (!payload || !payload.user_id) {
-        return res.status(401).json({ mensagem: 'Token inválido ou ausente.' });
-    }
+// Compra limitada
+router.post('/limitada', async (req, res) => {
+    const claims = verifyToken(req, res);
+    if (!claims) return res.status(401).json({ message: 'Acesso não autorizado.' });
 
-    const userId = payload.user_id;
-    const ordemId = parseInt(req.params.id);
-    const { preco_execucao } = req.body;
+    const idUsuario = claims.user_id;
+    const ticker = req.body.ticker;
+    const quantidade = parseInt(req.body.quantidade);
+    const precoReferencia = parseFloat(req.body.precoReferencia);
 
-    if (!ordemId || ordemId <= 0) {
-        return res.status(400).json({ mensagem: 'ID de ordem inválido.' });
-    }
-
-    if (!preco_execucao || typeof preco_execucao !== 'number' || preco_execucao <= 0) {
-        return res.status(400).json({ mensagem: 'Preço de execução inválido.' });
-    }
+    if (!ticker || ticker.trim() === '') return res.status(400).json({ message: 'Ticker inválido.' });
+    if (!quantidade || quantidade <= 0) return res.status(400).json({ message: 'Quantidade inválida.' });
+    if (!precoReferencia || precoReferencia <= 0) return res.status(400).json({ message: 'Preço de referência inválido.' });
 
     try {
+        const minuto = await obterMinutoNegociacaoUsuario(idUsuario);
+        const precoAtual = await obterPrecoMercado(ticker, minuto);
+
         const db = await getConnection();
-
-        // Verifica se a ordem existe, pertence ao usuário, e ainda não foi executada
-        const resultado = await db.query(
-            `SELECT * FROM ordem_compra WHERE id = ? AND fk_usuario_id = ?;`,
-            [ordemId, userId]
+        const [resultado] = await db.query(
+            `CALL registrar_ordem_compra(?, ?, ?, ?, ?)`,
+            [idUsuario, ticker, MODO_OPERACAO_LIMITADA, quantidade, precoReferencia]
         );
 
-        const ordem = resultado[0][0];
-        if (!ordem) {
-            await db.end();
-            return res.status(404).json({ mensagem: 'Ordem não encontrada.' });
+        const idOrdemCompra = resultado[0][0].insertId;
+
+        if (precoAtual <= precoReferencia) {
+            await executarOrdemCompra(idUsuario, idOrdemCompra, precoAtual);
+            res.json({ message: 'Ordem registrada e executada (preço atual <= referência).' });
+        } else {
+            res.json({ message: 'Ordem registrada com sucesso.' });
         }
-
-        if (ordem.executada) {
-            await db.end();
-            return res.status(400).json({ mensagem: 'Ordem já executada.' });
-        }
-
-        const agora = new Date();
-
-        await db.query(
-            `
-            UPDATE ordem_compra
-            SET executada = true,
-                preco_execucao = ?,
-                data_hora_execucao = ?
-            WHERE id = ?;
-            `,
-            [preco_execucao, agora, ordemId]
-        );
 
         await db.end();
-        res.json({ mensagem: 'Ordem de compra executada com sucesso.' });
-
     } catch (err) {
         console.error(err);
-        res.status(500).json({ mensagem: 'Erro ao executar ordem de compra.' });
+        res.status(500).json({ message: 'Erro ao registrar ordem de compra.' });
     }
 });
 
-router.get('/ordens/compra', async function (req, res) {
+router.get('/', async function (req, res) {
     const payload = verifyToken(req, res);
     if (!payload || !payload.user_id) {
         return res.status(401).json({ mensagem: 'Token inválido ou ausente.' });
@@ -154,4 +112,21 @@ router.get('/ordens/compra', async function (req, res) {
         res.status(500).json({ mensagem: 'Erro ao listar ordens de compra.' });
     }
 });
+// Execução da ordem de compra
+async function executarOrdemCompra(idUsuario, idOrdemCompra, precoExecucao) {
+    let db = await getConnection();
+    try {
+        await db.query(`CALL executar_ordem_compra(?, ?, ?)`, [
+            idUsuario,
+            idOrdemCompra,
+            precoExecucao,
+        ]);
+        await db.end();
+    } catch (err) {
+        console.error(err);
+        throw new Error('Erro ao executar ordem de compra.');
+    }
+}
+
+
 module.exports = router;
