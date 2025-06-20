@@ -6,7 +6,9 @@ async function obterPrecoMercado(ticker, minutoNegociacao) {
         throw new Error(`ERRO: Ticker vazio!`)
     }
 
-    if (!minutoNegociacao || !(minutoNegociacao >= 0 && minutoNegociacao <= 59)) {
+    if (minutoNegociacao === null 
+        || minutoNegociacao === undefined 
+        || !(minutoNegociacao >= 0 && minutoNegociacao <= 59)) {
         throw new Error(`ERRO: Minuto inválido! Deve ser um inteiro entre 0 e 59. Valor de minutoNegociação inserido na função: ${minutoNegociacao}`);
     }
 
