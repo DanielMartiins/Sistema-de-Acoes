@@ -116,6 +116,7 @@ router.post('/limitada', async function (req, res) {
 
         const idOrdemVenda = insercaoOrdemVenda[0][0].insertId;
 
+        //Se o preço já estiver igual ou acima do desejado, já executa a ordem de venda
         if (await atingiuPrecoDesejadoParaVenda(idUsuario, ticker, precoReferencia)) {
             await executarOrdemVenda(idUsuario, idOrdemVenda, precoAtual);
             res.json({
@@ -127,15 +128,6 @@ router.post('/limitada', async function (req, res) {
         console.log(err);
         res.status(500).json({ message: 'Ocorreu um erro no servidor' });
     }
-});
-
-router.post('/teste', async function (req, res) {
-    let ticker = 'PETR3';
-    let qtd = 5;
-    let id = 6;
-
-    console.log(await obterPrecoMercado(ticker, 0));
-    res.json('hello world');
 });
 
 async function possuiQuantidadeSuficiente(ticker, quantidadeVenda, idUsuario) {
@@ -158,8 +150,6 @@ async function possuiQuantidadeSuficiente(ticker, quantidadeVenda, idUsuario) {
     return quantidadeDisponivelCarteira >= quantidadeVenda;
 }
 
-//INCOMPLETO
-//Ideia: Criar uma função no próprio MySQL, uma stored procedure, já que envolve um código um pouco mais elaborado.
 async function executarOrdemVenda(idUsuario, idOrdemVenda, precoExecucao) {
     let db = await getConnection();
     try {
@@ -185,7 +175,7 @@ async function atingiuPrecoDesejadoParaVenda(idUsuario, ticker, precoReferencia)
 
     const precoAcoes = response.data;
     const acaoDesejada = precoAcoes.find((acao) => acao.ticker === ticker);
-    //console.log(acaoDesejada.preco);
+
     if (!acaoDesejada) return false;
     return acaoDesejada.preco >= precoReferencia;
 }
