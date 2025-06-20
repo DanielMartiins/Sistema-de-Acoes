@@ -129,15 +129,6 @@ router.post('/limitada', async function (req, res) {
     }
 });
 
-router.post('/teste', async function (req, res) {
-    let ticker = 'PETR3';
-    let qtd = 5;
-    let id = 6;
-
-    console.log(await obterPrecoMercado(ticker, 0));
-    res.json('hello world');
-});
-
 async function possuiQuantidadeSuficiente(ticker, quantidadeVenda, idUsuario) {
     let db = await getConnection();
     let consultaQuantidade = await db.query(
