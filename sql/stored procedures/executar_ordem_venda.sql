@@ -20,7 +20,7 @@ BEGIN
     */
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Erro customizado: condição inválida.';
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Houve uma falha ao executar a ordem de venda';
 	    ROLLBACK;
     END;
 
