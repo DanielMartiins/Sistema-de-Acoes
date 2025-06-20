@@ -20,4 +20,7 @@ app.use('/acoes/ordemVenda', ordemVenda);
 var ordemCompra = require('./controller/acoes/ordemCompra.js');
 app.use('/acoes/ordemCompra', ordemCompra);
 
+var teste = require('./rotasTeste/teste.js');
+app.use('/testes', teste);
+
 app.listen(3000);
