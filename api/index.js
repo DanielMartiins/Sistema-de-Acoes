@@ -14,7 +14,10 @@ app.use('/carteira', carteira);
 var usuario = require('./controller/usuario.js');
 app.use('/usuario', usuario);
 
+var ordemVenda = require('./controller/acoes/ordemVenda.js');
+app.use('/acoes/venda', ordemVenda);
+
 var ordemCompra = require('./controller/acoes/ordemCompra.js');
-app.use('/acoes', ordemCompra);
+app.use('/acoes/compra', ordemCompra);
 
 app.listen(3000);
