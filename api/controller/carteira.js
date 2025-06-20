@@ -32,7 +32,7 @@ router.get('/', async function (req, res) {
         //await calcularPerdaOuGanho(query_acao_carteira, id);
 
         await db.end();
-        res.json({query_acao_carteira});
+        res.json(query_acao_carteira[0]);
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Ocorreu um erro no servidor' });
