@@ -24,20 +24,26 @@ router.get('/', async function (req, res) {
         `
         SELECT
                 ticker,
+
                 quantidade,
-                DATE_FORMAT(data_hora, '%Y-%m-%d %H:%i:%s') AS dataHoraRegistro,
-                CONCAT('R$ ', FORMAT(preco_referencia,2)) AS precoReferencia,
+
+                DATE_FORMAT(data_hora, '%d-%m-%Y %H:%i:%s') AS dataHoraRegistro,
+
+                CONCAT('R$ ', FORMAT(preco_referencia,4)) AS precoReferencia,
+
                 IF(executada = 1, 'Sim', 'Não') AS executada,
+
                 IF(
                     executada = 1, 
-                    preco_execucao,
+                    CONCAT('R$ ', FORMAT(preco_execucao, 4)),
                     'Não executado'
-                    ) AS precoExecucao,
+                ) AS precoExecucao,
+
                 IF(
                     executada = 1,
-                    DATE_FORMAT(data_hora_execucao, '%Y-%m-%d %H:%i:%s'),
+                    DATE_FORMAT(data_hora_execucao, '%d-%m-%Y %H:%i:%s'),
                     'Não executado'
-                ) AS dataHoraExecucao
+                ) AS dataHoraExecucao                 
         FROM ordem_venda 
         WHERE fk_usuario_id = ?;
         `,
