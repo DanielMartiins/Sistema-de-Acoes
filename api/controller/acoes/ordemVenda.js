@@ -50,7 +50,6 @@ router.get('/', async function (req, res) {
         [idUsuario]
     );
 
-    console.log(listaOrdensVenda);
     res.json(listaOrdensVenda);
 });
 
@@ -153,6 +152,53 @@ router.post('/limitada', async function (req, res) {
     }
 });
 
+//Verificar ordens de venda pendentes e executá-las quando o preço é favorável
+router.post('/executar', async function (req, res) {
+    const claims = auth.verifyToken(req, res);
+    if (!claims) {
+        res.status(401).json({ message: 'Acesso não autorizado.' });
+        return;
+    }
+
+    const idUsuario = claims.user_id;
+
+    try {
+        const ordensVendaPendentes = await obterOrdensVendaPendentes(idUsuario);
+        const minutoNegociacao = await obterMinutoNegociacaoUsuario(idUsuario);
+        let qtdeOrdensExecutadas = 0;
+        let ordensExecutadas = [];
+        for (const ordemVenda of ordensVendaPendentes) {
+            const possuiTickersSuficiente = await possuiQuantidadeSuficiente(
+                ordemVenda.ticker,
+                ordemVenda.quantidade,
+                idUsuario
+            );
+
+            const precoAtualTicker = await obterPrecoMercado(ordemVenda.ticker, minutoNegociacao);
+
+            console.log(`${precoAtualTicker} >= ${ordemVenda.precoReferencia}?  `);
+            //Se preço é favorável e ele possui os tickers, executar a ordem de venda
+            if (possuiTickersSuficiente && precoAtualTicker >= ordemVenda.precoReferencia) {
+                executarOrdemVenda(idUsuario, ordemVenda.id, precoAtualTicker);
+                qtdeOrdensExecutadas++;
+                ordensExecutadas.push({
+                    ticker: ordemVenda.ticker,
+                    quantidade: ordemVenda.quantidade,
+                    precoExecucao: precoAtualTicker,
+                });
+                console.log(`Ordem de venda com id ${ordemVenda.id} executada`);
+            }
+        }
+        res.json({
+            quantidadeOrdensExecutadas: qtdeOrdensExecutadas,
+            ordensExecutadas: ordensExecutadas,
+        });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ message: 'Ocorreu uma falha no servidor.' });
+    }
+});
+
 //Validação das entrada recebidas na requisição para realizar registro de venda
 async function validarEntrada(idUsuario, ticker, quantidade, modo, precoReferencia) {
     if (!ticker || ticker.trim() === '') return 'Ticker inválido.';
@@ -219,5 +265,18 @@ async function atingiuPrecoDesejadoParaVenda(idUsuario, ticker, precoReferencia)
     const minutoNegociacao = await obterMinutoNegociacaoUsuario(idUsuario);
     const precoAcaoDesejada = await obterPrecoMercado(ticker, minutoNegociacao);
     return precoAcaoDesejada >= precoReferencia;
+}
+
+async function obterOrdensVendaPendentes(idUsuario) {
+    const db = await getConnection();
+    const [ordensVendaPendentes] = await db.query(
+        `
+        SELECT id, ticker, quantidade, preco_referencia as precoReferencia
+        FROM ordem_venda
+        WHERE fk_usuario_id = ? AND executada = 0
+        `,
+        [idUsuario]
+    );
+    return ordensVendaPendentes;
 }
 module.exports = router;
