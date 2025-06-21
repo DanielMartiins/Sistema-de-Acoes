@@ -2,6 +2,10 @@ const axios = require('axios');
 
 async function obterPrecoMercado(ticker, minutoNegociacao) {
 
+    if (!ticker) {
+        throw new Error(`ERRO: Ticker indefinido`)
+    }
+
     if (ticker.trim() === '') {
         throw new Error(`ERRO: Ticker vazio!`)
     }
