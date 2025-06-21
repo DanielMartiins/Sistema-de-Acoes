@@ -3,6 +3,18 @@ const router = express.Router();
 const getConnection = require('../model/dbConnection.js');
 const auth = require('../auth/auth.js');
 
+router.get('/', async function (req, res) {
+    const claims = auth.verifyToken(req, res);
+    if (!claims) {
+        res.status(401).json({ message: 'Acesso não autorizado.' });
+        return;
+    }
+
+    const idUsuario = claims.user_id;
+    const lancamentosContaCorrente = await obterLancamentosContaCorrente(idUsuario);
+    res.json(lancamentosContaCorrente);
+});
+
 //Depositar um valor na conta corrente
 router.put('/depositar', async function (req, res) {
     const claims = auth.verifyToken(req, res);
@@ -27,7 +39,7 @@ router.put('/depositar', async function (req, res) {
             `
             CALL depositar_conta_corrente(?, ?, ?);
             `,
-            [idUsuario, valor, JSON.stringify({descricao: descricao})]
+            [idUsuario, valor, JSON.stringify({ descricao: descricao })]
         );
     } catch (err) {
         console.log(err);
@@ -56,7 +68,7 @@ router.put('/debitar', async function (req, res) {
 
     const saldoUsuario = await obterSaldoUsuario(idUsuario);
     if (saldoUsuario < valor) {
-        res.status(400).json({ message: 'Usuário não possui saldo suficiente.'});
+        res.status(400).json({ message: 'Usuário não possui saldo suficiente.' });
         return;
     }
 
@@ -66,7 +78,7 @@ router.put('/debitar', async function (req, res) {
             `
             CALL debitar_conta_corrente(?, ?, ?);
             `,
-            [idUsuario, valor, JSON.stringify({descricao: descricao})]
+            [idUsuario, valor, JSON.stringify({ descricao: descricao })]
         );
         res.json({ message: 'Débito realizado com sucesso.' });
     } catch (err) {
@@ -74,6 +86,19 @@ router.put('/debitar', async function (req, res) {
         res.status(500).json({ message: 'Ocorreu um erro no servidor.' });
     }
 });
+
+async function obterLancamentosContaCorrente(idUsuario) {
+    const db = await getConnection();
+    const [consulta] = await db.query(
+        `
+        SELECT id, historico, valor, DATE_FORMAT(data_hora, '%d-%m-%Y %H:%i:%s') as data_hora
+        FROM lancamento_conta_corrente
+        WHERE fk_usuario_id = ?
+        `,
+        [idUsuario]
+    );
+    return consulta;
+}
 
 function validarEntrada(valor, descricao) {
     if (!valor || valor <= 0)
@@ -91,7 +116,7 @@ async function obterSaldoUsuario(idUsuario) {
         `,
         [idUsuario]
     );
-    
+
     return consulta[0].saldo;
 }
 
