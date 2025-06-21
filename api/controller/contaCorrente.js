@@ -3,6 +3,7 @@ const router = express.Router();
 const getConnection = require('../model/dbConnection.js');
 const auth = require('../auth/auth.js');
 
+//Listar lancamentos da conta corrente
 router.get('/', async function (req, res) {
     const claims = auth.verifyToken(req, res);
     if (!claims) {
