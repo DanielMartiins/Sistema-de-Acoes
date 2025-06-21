@@ -23,4 +23,7 @@ app.use('/acoes/ordemCompra', ordemCompra);
 var teste = require('./rotasTeste/teste.js');
 app.use('/testes', teste);
 
+var contaCorrente = require('./controller/contaCorrente.js');
+app.use('/contaCorrente', contaCorrente);
+
 app.listen(3000);
