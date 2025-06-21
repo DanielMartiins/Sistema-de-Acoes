@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../../auth/auth.js');
 const getConnection = require('../../model/dbConnection.js');
-const axios = require('axios');
 const { obterMinutoNegociacaoUsuario } = require('../../utils/negociacaoUsuario.js');
 const { obterPrecoMercado } = require('../../utils/precoMercado.js');
 
@@ -10,6 +9,44 @@ const {
     MODO_OPERACAO_MERCADO,
     MODO_OPERACAO_LIMITADA,
 } = require('../../constants/modoOperacao.js');
+
+//Listar ordens de venda realizadas pelo usuario
+router.get('/', async function (req, res) {
+    const db = await getConnection();
+    const claims = auth.verifyToken(req, res);
+    if (!claims) {
+        res.status(401).json({ message: 'Acesso não autorizado.' });
+        return;
+    }
+
+    const idUsuario = claims.user_id;
+    const [listaOrdensVenda] = await db.query(
+        `
+        SELECT
+                ticker,
+                quantidade,
+                DATE_FORMAT(data_hora, '%Y-%m-%d %H:%i:%s') AS dataHoraRegistro,
+                CONCAT('R$ ', FORMAT(preco_referencia,2)) AS precoReferencia,
+                IF(executada = 1, 'Sim', 'Não') AS executada,
+                IF(
+                    executada = 1, 
+                    preco_execucao,
+                    'Não executado'
+                    ) AS precoExecucao,
+                IF(
+                    executada = 1,
+                    DATE_FORMAT(data_hora_execucao, '%Y-%m-%d %H:%i:%s'),
+                    'Não executado'
+                ) AS dataHoraExecucao
+        FROM ordem_venda 
+        WHERE fk_usuario_id = ?;
+        `,
+        [idUsuario]
+    );
+
+    console.log(listaOrdensVenda);
+    res.json(listaOrdensVenda);
+});
 
 //Registrar ordem de venda a preço de mercado
 router.post('/mercado', async function (req, res) {
@@ -110,6 +147,7 @@ router.post('/limitada', async function (req, res) {
     }
 });
 
+//Validação das entrada recebidas na requisição para realizar registro de venda
 async function validarEntrada(idUsuario, ticker, quantidade, modo, precoReferencia) {
     if (!ticker || ticker.trim() === '') return 'Ticker inválido.';
 
@@ -123,6 +161,7 @@ async function validarEntrada(idUsuario, ticker, quantidade, modo, precoReferenc
     return null;
 }
 
+//Verifica se o usuário tem ticker suficiente na carteira
 async function possuiQuantidadeSuficiente(ticker, quantidadeVenda, idUsuario) {
     const db = await getConnection();
     const consultaQuantidade = await db.query(
