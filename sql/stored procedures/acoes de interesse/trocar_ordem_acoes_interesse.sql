@@ -1,7 +1,7 @@
-DROP PROCEDURE IF EXISTS trocar_ordem_acoes;
+DROP PROCEDURE IF EXISTS trocar_ordem_acoes_interesse;
 DELIMITER $$
 
-CREATE PROCEDURE trocar_ordem_acoes (
+CREATE PROCEDURE trocar_ordem_acoes_interesse (
     IN p_usuario_id INT,
     IN p_ordem1 INT,
     IN p_ordem2 INT
