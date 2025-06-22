@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 const getConnection = require('../model/dbConnection.js');
 const crypto = require('crypto');
 const { verifyToken } = require('../auth/auth.js');
-const { enviarEmail } = require('../../utils/mailer');
+const { enviarEmail } = require('../utils/mailer.js');
 //Criar conta
 /*
  * Também precisar fazer o que o prof pediu de mostrar 10 itens aleatórios na lista do usuário recém criado
