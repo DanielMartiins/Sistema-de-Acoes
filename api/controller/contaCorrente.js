@@ -18,7 +18,7 @@ router.get('/', async function (req, res) {
 });
 
 //Depositar um valor na conta corrente
-router.put('/depositar', async function (req, res) {
+router.post('/depositar', async function (req, res) {
     const claims = auth.verifyToken(req, res);
     if (!claims) {
         res.status(401).json({ message: 'Acesso não autorizado.' });
@@ -51,7 +51,7 @@ router.put('/depositar', async function (req, res) {
 });
 
 //Debitar um valor na conta corrente
-router.put('/debitar', async function (req, res) {
+router.post('/debitar', async function (req, res) {
     const claims = auth.verifyToken(req, res);
     if (!claims) {
         res.status(401).json({ message: 'Acesso não autorizado.' });
