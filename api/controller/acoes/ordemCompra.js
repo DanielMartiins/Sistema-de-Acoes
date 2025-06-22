@@ -22,25 +22,30 @@ router.post('/mercado', async (req, res) => {
     if (!ticker || ticker.trim() === '') return res.status(400).json({ message: 'Ticker inválido.' });
     if (!quantidade || quantidade <= 0) return res.status(400).json({ message: 'Quantidade inválida.' });
 
+    let db;
+
     try {
         const minuto = await obterMinutoNegociacaoUsuario(idUsuario);
         const precoAtual = await obterPrecoMercado(ticker, minuto);
 
-        const db = await getConnection();
+        db = await getConnection();
         const [resultado] = await db.query(
             `CALL registrar_ordem_compra(?, ?, ?, ?, ?)`,
             [idUsuario, ticker, MODO_OPERACAO_MERCADO, quantidade, precoAtual]
         );
 
         const idOrdemCompra = resultado[0][0].insertId;
-
-        await executarOrdemCompra(idUsuario, idOrdemCompra, precoAtual);
         await db.end();
 
+        await executarOrdemCompra(idUsuario, idOrdemCompra, precoAtual);
+
         res.json({ message: 'Ordem de compra registrada e executada com sucesso.' });
+
     } catch (err) {
+        if (db) await db.end();
         console.error(err);
-        res.status(500).json({ message: 'Erro ao registrar ou executar ordem de compra.' });
+
+        return res.status(400).json({ message: err.message });
     }
 });
 
@@ -58,31 +63,36 @@ router.post('/limitada', async (req, res) => {
     if (!quantidade || quantidade <= 0) return res.status(400).json({ message: 'Quantidade inválida.' });
     if (!precoReferencia || precoReferencia <= 0) return res.status(400).json({ message: 'Preço de referência inválido.' });
 
+    let db;
+
     try {
         const minuto = await obterMinutoNegociacaoUsuario(idUsuario);
         const precoAtual = await obterPrecoMercado(ticker, minuto);
 
-        const db = await getConnection();
+        db = await getConnection();
         const [resultado] = await db.query(
             `CALL registrar_ordem_compra(?, ?, ?, ?, ?)`,
             [idUsuario, ticker, MODO_OPERACAO_LIMITADA, quantidade, precoReferencia]
         );
 
         const idOrdemCompra = resultado[0][0].insertId;
+        await db.end();
 
         if (precoAtual <= precoReferencia) {
             await executarOrdemCompra(idUsuario, idOrdemCompra, precoAtual);
-            res.json({ message: 'Ordem registrada e executada (preço atual <= referência).' });
-        } else {
-            res.json({ message: 'Ordem registrada com sucesso.' });
+            return res.json({ message: 'Ordem registrada e executada (preço atual <= referência).' });
         }
 
-        await db.end();
+        res.json({ message: 'Ordem registrada com sucesso.' });
+
     } catch (err) {
+        if (db) await db.end();
         console.error(err);
-        res.status(500).json({ message: 'Erro ao registrar ordem de compra.' });
+
+        return res.status(400).json({ message: err.message });
     }
 });
+
 
 router.get('/', async function (req, res) {
     const payload = verifyToken(req, res);
@@ -114,7 +124,7 @@ router.get('/', async function (req, res) {
 });
 // Execução da ordem de compra
 async function executarOrdemCompra(idUsuario, idOrdemCompra, precoExecucao) {
-    let db = await getConnection();
+    const db = await getConnection();
     try {
         await db.query(`CALL executar_ordem_compra(?, ?, ?)`, [
             idUsuario,
@@ -123,10 +133,18 @@ async function executarOrdemCompra(idUsuario, idOrdemCompra, precoExecucao) {
         ]);
         await db.end();
     } catch (err) {
+        await db.end();
         console.error(err);
-        throw new Error('Erro ao executar ordem de compra.');
+
+        // Verifica se é erro de SQLSTATE 45000
+        if (err.sqlState === '45000') {
+            throw new Error(err.message); // mensagem da SIGNAL do MySQL
+        }
+
+        throw new Error('Erro inesperado ao executar ordem de compra.');
     }
 }
+
 
 
 module.exports = router;

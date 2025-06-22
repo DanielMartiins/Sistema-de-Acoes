@@ -18,6 +18,7 @@ BEGIN
         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Houve uma falha ao registrar a ordem de compra.';
     END;
 
+    -- Verificação de nulidade
     IF (p_id_usuario IS NULL OR
         p_ticker IS NULL OR
         p_modo IS NULL OR
@@ -28,23 +29,21 @@ BEGIN
 
     START TRANSACTION;
 
-        -- 1. Buscar a hora de negociação do usuário
-        SELECT usuario.ultima_hora_negociacao
+        -- 1. Buscar data/hora de negociação do usuário
+        SELECT ultima_hora_negociacao
         INTO v_data_hora
         FROM usuario
-        WHERE usuario.id = p_id_usuario;
+        WHERE id = p_id_usuario;
 
-        -- 2. Registrar a ordem de compra
+        -- 2. Inserir ordem de compra
         INSERT INTO ordem_compra (
-            fk_usuario_id, 
-            data_hora, 
-            ticker, 
-            modo, 
-            quantidade, 
-            preco_referencia, 
-            executada, 
-            preco_execucao, 
-            data_hora_execucao
+            fk_usuario_id,
+            data_hora,
+            ticker,
+            modo,
+            quantidade,
+            preco_referencia,
+            executada
         )
         VALUES (
             p_id_usuario,
@@ -53,12 +52,10 @@ BEGIN
             p_modo,
             p_quantidade,
             p_preco_referencia,
-            0,
-            NULL,
-            NULL
+            0
         );
 
-        -- Retornar o ID gerado
+        -- 3. Retornar o ID gerado
         SELECT LAST_INSERT_ID() AS insertId;
 
     COMMIT;

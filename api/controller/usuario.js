@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 const getConnection = require('../model/dbConnection.js');
 const crypto = require('crypto');
 const { verifyToken } = require('../auth/auth.js');
-
+const { enviarEmail } = require('../../utils/mailer');
 //Criar conta
 /*
  * Também precisar fazer o que o prof pediu de mostrar 10 itens aleatórios na lista do usuário recém criado
@@ -117,7 +117,7 @@ router.post('/login', async function (req, res) {
 router.post('/logout', function (req, res) {
     res.status(204).send();
 });
-//Recuperação/Redefinição de senha (Quando a senha atual é esquecida)
+//Recuperação/Redefinição de senha (A página acessada após interagir com o link enviado por email)
 router.post('/senha/recuperar', async function (req, res) {
     const { email, token, novaSenha } = req.body;
 
@@ -183,30 +183,28 @@ router.post('/senha/recuperar', async function (req, res) {
 //Token de Nova senha
 
 router.post('/senha/token', async function (req, res) {
-    var email = req.body.email;
+    const email = req.body.email;
 
     if (!verificaEmailValido(email)) {
         return res.status(400).json({ mensagem: 'Email inválido.' });
     }
 
     try {
-        var db = await getConnection();
+        const db = await getConnection();
 
-        // Verifica se o usuário existe
-        var resultado = await db.query(
+        const resultado = await db.query(
             `SELECT id FROM usuario WHERE email = ?;`,
             [email]
         );
 
-        var usuario = resultado[0];
+        const usuario = resultado[0][0];
         if (!usuario) {
             await db.end();
             return res.status(404).json({ mensagem: 'Usuário não encontrado.' });
         }
 
-        // Geração de token aleatório (pode ser alfanumérico)
-        var token = crypto.randomBytes(16).toString('hex');
-        var agora = new Date();
+        const token = crypto.randomBytes(16).toString('hex');
+        const agora = new Date();
 
         await db.query(
             `UPDATE usuario 
@@ -217,10 +215,20 @@ router.post('/senha/token', async function (req, res) {
 
         await db.end();
 
-        // Simulação de envio de e-mail — pode ser trocado por integração real
-        console.log(`Token de recuperação para ${email}: ${token}`);
+        // Geração do link de recuperação NECESSÁRIO PÔR O LINK QUE SERÁ ACESSADO NA HORA (LOCALHOST??)
+        const linkRecuperacao = `https://?/redefinir-senha?email=${encodeURIComponent(email)}&token=${token}`;
 
-        res.json({ mensagem: 'Token enviado para o e-mail.' });
+        // Conteúdo do e-mail (HTML ou texto)
+        const htmlEmail = `
+            <p>Você solicitou a redefinição de sua senha.</p>
+            <p>Clique no link abaixo para criar uma nova senha:</p>
+            <a href="${linkRecuperacao}">Redefinir senha</a>
+            <p>Se você não solicitou, ignore este e-mail.</p>
+        `;
+
+        await enviarEmail(email, 'Recuperação de senha - Sistema de Ações', htmlEmail);
+
+        res.json({ mensagem: 'Link de recuperação enviado para o e-mail.' });
 
     } catch (err) {
         console.error(err);
