@@ -137,9 +137,44 @@ router.delete('/remover', async function (req, res) {
     }
 });
 
-router.put('/subir', async function (req, res) {});
+router.put('/trocarOrdem', async function (req, res) {
+    const claims = auth.verifyToken(req, res);
+    if (!claims) {
+        res.status(401).json({ message: 'Acesso não autorizado.' });
+        return;
+    }
 
-router.put('/descer', async function (req, res) {});
+    const idUsuario = claims.user_id;
+    const ordemAcao1 = parseInt(req.body.ordemAcao1);
+    const ordemAcao2 = parseInt(req.body.ordemAcao2);
+    const quantidadeAcoesAdicionadas = await obterQuantidadeAcoesAdicionadas(idUsuario);
+
+    if (quantidadeAcoesAdicionadas <= 1) {
+        res.status(400).json({ message: 'O usuário possui no máximo uma ação na lista.' });
+        return;
+    }
+
+    if (
+        !ordemAcao1 ||
+        !ordemAcao2 ||
+        ordemAcao1 <= 0 ||
+        ordemAcao1 > quantidadeAcoesAdicionadas ||
+        ordemAcao2 <= 0 ||
+        ordemAcao2 > quantidadeAcoesAdicionadas ||
+        !(ordemAcao1 === ordemAcao2 + 1 || ordemAcao2 === ordemAcao1 + 1)
+    ) {
+        res.status(400).json({ message: 'Números de ordem inválidos' });
+        return;
+    }
+
+    try {
+        await trocarOrdemAcoes(idUsuario, ordemAcao1, ordemAcao2);
+        res.json({ message: 'Ordem das ações trocadas com sucesso' });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ message: 'Ocorreu um erro no servidor.' });
+    }
+});
 
 async function montarAcaoInteresse(acao, minutoNegociacao) {
     let precoMercado = await obterPrecoMercado(acao.ticker, minutoNegociacao);
@@ -216,6 +251,16 @@ async function reordenarAcoesInteresse(idUsuario) {
         ORDER BY ordem;
         `,
         [idUsuario]
+    );
+}
+
+async function trocarOrdemAcoes(idUsuario, ordem1, ordem2) {
+    const db = await getConnection();
+    await db.query(
+        `
+    CALL trocar_ordem_acoes_interesse(?, ?, ?);
+    `,
+        [idUsuario, ordem1, ordem2]
     );
 }
 
