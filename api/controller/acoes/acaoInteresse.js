@@ -44,6 +44,7 @@ router.get('/', async function (req, res) {
     }
 });
 
+//Adicionar ação na lista de interesse
 router.post('/adicionar', async function (req, res) {
     const claims = auth.verifyToken(req, res);
     if (!claims) {
@@ -85,7 +86,56 @@ router.post('/adicionar', async function (req, res) {
     }
 });
 
-router.delete('/remover', async function (req, res) {});
+//Remover ação da lista de interesse
+router.delete('/remover', async function (req, res) {
+    const claims = auth.verifyToken(req, res);
+    if (!claims) {
+        res.status(401).json({ message: 'Acesso não autorizado.' });
+        return;
+    }
+
+    const idUsuario = claims.user_id;
+    const ticker = req.body.ticker;
+
+    if ((await obterQuantidadeAcoesAdicionadas(idUsuario)) == 0) {
+        res.status(400).json({ message: `A lista de ações está vazia.` });
+        return;
+    }
+
+    if (!ticker || ticker.trim() === '') {
+        res.status(400).json({ message: 'Ticker inválido.' });
+        return;
+    }
+
+    if (!(await verificaTickerJaAdicionado(idUsuario, ticker))) {
+        res.status(400).json({
+            message: `O ticker ${ticker} não foi encontrado na lista de ações de interesse.`,
+        });
+        return;
+    }
+
+    try {
+        const db = await getConnection();
+
+        //Remover ação da lista de ações de interesse
+        await db.query(
+            `
+            DELETE FROM acao_interesse
+            WHERE fk_usuario_id = ? AND ticker = ?
+            `,
+            [idUsuario, ticker]
+        );
+
+        await reordenarAcoesInteresse(idUsuario);
+
+        res.json({
+            message: `Ticker ${ticker} removido da lista de ações de interesse com sucesso.`,
+        });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ message: 'Ocorreu um erro no servidor.' });
+    }
+});
 
 router.put('/subir', async function (req, res) {});
 
@@ -151,6 +201,22 @@ async function acaoExiste(ticker) {
     console.log(acaoDesejada);
     if (!acaoDesejada) return false;
     return true;
+}
+
+async function reordenarAcoesInteresse(idUsuario) {
+    const db = await getConnection();
+
+    await db.query(`SET @nova_ordem = 0;`);
+
+    await db.query(
+        `
+        UPDATE acao_interesse
+        SET ordem = (@nova_ordem := @nova_ordem + 1)
+        WHERE fk_usuario_id = ?
+        ORDER BY ordem;
+        `,
+        [idUsuario]
+    );
 }
 
 module.exports = router;
