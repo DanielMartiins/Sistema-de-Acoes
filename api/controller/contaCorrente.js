@@ -93,9 +93,10 @@ async function obterLancamentosContaCorrente(idUsuario) {
     const db = await getConnection();
     const [consulta] = await db.query(
         `
-        SELECT id, historico, valor, DATE_FORMAT(data_hora, '%d-%m-%Y %H:%i:%s') as data_hora
+        SELECT historico, valor, DATE_FORMAT(data_hora, '%d-%m-%Y %H:%i:%s') as data_hora
         FROM lancamento_conta_corrente
         WHERE fk_usuario_id = ?
+        ORDER BY data_hora
         `,
         [idUsuario]
     );
