@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const getConnection = require('../model/dbConnection.js');
 const { obterMinutoNegociacaoUsuario } = require('../utils/negociacaoUsuario.js');
-const { obterPrecoMercado } = require('../utils/precoMercado.js');
+const { obterPrecoMercado, obterPrecoFechamento } = require('../utils/precoMercado.js');
 
 router.get('/obterPrecoMercado', async function (req, res) {
     const ticker = req.query.ticker;
@@ -10,6 +10,13 @@ router.get('/obterPrecoMercado', async function (req, res) {
 
     const resultado = await obterPrecoMercado(ticker, minuto);
     res.json(`Preço do ticker ${ticker}: ${resultado}`);
+});
+
+router.get('/obterPrecoFechamento', async function (req, res) {
+    const ticker = req.query.ticker;
+
+    const resultado = await obterPrecoFechamento(ticker);
+    res.json(`Preço de fechamento do ticker ${ticker}: ${resultado}`);
 });
 
 router.get('/ordensVendaPendentes/:id', async function (req, res) {
