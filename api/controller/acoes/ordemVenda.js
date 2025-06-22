@@ -23,27 +23,17 @@ router.get('/', async function (req, res) {
     const [listaOrdensVenda] = await db.query(
         `
         SELECT
-                ticker,
-
-                quantidade,
-
-                DATE_FORMAT(data_hora, '%d-%m-%Y %H:%i:%s') AS dataHoraRegistro,
-
-                CONCAT('R$ ', FORMAT(preco_referencia,4)) AS precoReferencia,
-
-                IF(executada = 1, 'Sim', 'Não') AS executada,
-
-                IF(
-                    executada = 1, 
-                    CONCAT('R$ ', FORMAT(preco_execucao, 4)),
-                    'Não executado'
-                ) AS precoExecucao,
-
-                IF(
-                    executada = 1,
-                    DATE_FORMAT(data_hora_execucao, '%d-%m-%Y %H:%i:%s'),
-                    'Não executado'
-                ) AS dataHoraExecucao                 
+            ticker,
+            quantidade,
+            DATE_FORMAT(data_hora, '%d-%m-%Y %H:%i:%s') AS dataHoraRegistro,
+            preco_referencia AS precoReferencia,
+            executada,
+            preco_execucao as precoExecucao,
+            IF(
+                executada = 1,
+                DATE_FORMAT(data_hora_execucao, '%d-%m-%Y %H:%i:%s'),
+                null
+            ) AS dataHoraExecucao                 
         FROM ordem_venda 
         WHERE fk_usuario_id = ?;
         `,
