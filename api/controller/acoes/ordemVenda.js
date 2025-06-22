@@ -169,7 +169,7 @@ router.post('/executar', async function (req, res) {
             console.log(`${precoAtualTicker} >= ${ordemVenda.precoReferencia}?  `);
             //Se preço é favorável e ele possui os tickers, executar a ordem de venda
             if (possuiTickersSuficiente && precoAtualTicker >= ordemVenda.precoReferencia) {
-                executarOrdemVenda(idUsuario, ordemVenda.id, precoAtualTicker);
+                await executarOrdemVenda(idUsuario, ordemVenda.id, precoAtualTicker);
                 qtdeOrdensExecutadas++;
                 ordensExecutadas.push({
                     ticker: ordemVenda.ticker,
