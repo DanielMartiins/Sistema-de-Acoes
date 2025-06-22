@@ -20,6 +20,9 @@ app.use('/acoes/ordemVenda', ordemVenda);
 var ordemCompra = require('./controller/acoes/ordemCompra.js');
 app.use('/acoes/ordemCompra', ordemCompra);
 
+var acaoInteresse = require('./controller/acoes/acaoInteresse.js');
+app.use('/acoes/acaoInteresse', acaoInteresse);
+
 var teste = require('./rotasTeste/teste.js');
 app.use('/testes', teste);
 
