@@ -32,4 +32,7 @@ app.use('/testes', teste);
 var contaCorrente = require('./controller/contaCorrente.js');
 app.use('/contaCorrente', contaCorrente);
 
+var listarAcoesMercado = require('./controller/acoes/listarAcoesMercado.js');
+app.use('/acoes/listarAcoesMercado', listarAcoesMercado);
+
 app.listen(3000);
