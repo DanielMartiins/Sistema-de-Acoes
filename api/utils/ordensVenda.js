@@ -68,6 +68,27 @@ async function executarOrdemVenda(idUsuario, idOrdemVenda, precoExecucao) {
     }
 }
 
+//Verifica se o usuário tem ticker suficiente na carteira
+async function possuiQuantidadeSuficiente(ticker, quantidadeVenda, idUsuario) {
+    const db = await getConnection();
+    const [consultaQuantidade] = await db.query(
+        `
+        SELECT qtde FROM acao_carteira 
+        WHERE fk_usuario_id = ? AND ticker = ? 
+        `,
+        [idUsuario, ticker]
+    );
+    console.log("ConsultaQuantidade:")
+    console.log(consultaQuantidade);
+
+    if (consultaQuantidade.length === 0) return false;
+
+    const quantidadeDisponivelCarteira = consultaQuantidade[0].qtde;
+
+    await db.end();
+    return quantidadeDisponivelCarteira >= quantidadeVenda;
+}
+
 //Obter ordens de venda ainda não executadas de um usuário
 async function obterOrdensVendaPendentes(idUsuario) {
     const db = await getConnection();
@@ -81,4 +102,4 @@ async function obterOrdensVendaPendentes(idUsuario) {
     );
     return ordensVendaPendentes;
 }
-module.exports = {executarOrdensVenda, executarOrdemVenda, obterOrdensVendaPendentes}
+module.exports = {executarOrdensVenda, executarOrdemVenda, possuiQuantidadeSuficiente, obterOrdensVendaPendentes}
