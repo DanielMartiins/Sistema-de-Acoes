@@ -95,41 +95,33 @@ router.delete('/remover', async function (req, res) {
     }
 
     const idUsuario = claims.user_id;
-    const ticker = req.body.ticker;
+    const ordemAcao = req.body.ordemAcao;
+    const qtdeAcoesAdicionadas = await obterQuantidadeAcoesAdicionadas(idUsuario)
 
-    if ((await obterQuantidadeAcoesAdicionadas(idUsuario)) == 0) {
+    
+    if (qtdeAcoesAdicionadas == 0) {
         res.status(400).json({ message: `A lista de ações está vazia.` });
         return;
     }
 
-    if (!ticker || ticker.trim() === '') {
-        res.status(400).json({ message: 'Ticker inválido.' });
-        return;
-    }
-
-    if (!(await verificaTickerJaAdicionado(idUsuario, ticker))) {
-        res.status(400).json({
-            message: `O ticker ${ticker} não foi encontrado na lista de ações de interesse.`,
-        });
-        return;
-    }
+    if (!ordemAcao || ordemAcao <= 0 || ordemAcao > qtdeAcoesAdicionadas)
+        return res.status(400).json({message: `Ordem inválida`})
 
     try {
         const db = await getConnection();
-
         //Remover ação da lista de ações de interesse
         await db.query(
             `
             DELETE FROM acao_interesse
-            WHERE fk_usuario_id = ? AND ticker = ?
+            WHERE fk_usuario_id = ? AND ordem = ?
             `,
-            [idUsuario, ticker]
+            [idUsuario, ordemAcao]
         );
 
         await reordenarAcoesInteresse(idUsuario);
 
         res.json({
-            message: `Ticker ${ticker} removido da lista de ações de interesse com sucesso.`,
+            message: `Ação removida da lista de ações de interesse com sucesso.`,
         });
     } catch (err) {
         console.log(err);
