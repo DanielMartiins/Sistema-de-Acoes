@@ -21,10 +21,11 @@ async function executarOrdensCompra(req, res) {
 
         for (const ordemCompra of ordensCompraPendentes) {
             const precoAtualTicker = await obterPrecoMercado(ordemCompra.ticker, minutoNegociacao);
-
             console.log(`${precoAtualTicker} <= ${ordemCompra.precoReferencia}?`);
             // Se o preço atual for favorável, executa a ordem
             if (precoAtualTicker <= ordemCompra.precoReferencia) {
+                if (!await possuiSaldoSuficiente(idUsuario, precoAtualTicker))
+                    continue;
                 try {
                     await executarOrdemCompra(idUsuario, ordemCompra.id, precoAtualTicker);
                     qtdeOrdensExecutadas++;
@@ -79,6 +80,18 @@ async function obterOrdensCompraPendentes(idUsuario) {
     );
     await db.end();
     return ordensCompraPendentes;
+}
+
+async function possuiSaldoSuficiente(idUsuario, preco) {
+    const db = await getConnection();
+    const [consulta] = await db.query(
+        `
+        SELECT saldo FROM usuario
+        WHERE id = ?
+        `, [idUsuario]
+    )
+
+    return consulta[0].saldo >= preco;
 }
 
 module.exports = {
