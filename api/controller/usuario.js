@@ -8,10 +8,10 @@ const getConnection = require('../model/dbConnection.js');
 const crypto = require('crypto');
 const { verifyToken } = require('../auth/auth.js');
 const { enviarEmail } = require('../utils/mailer.js');
-//Criar conta
-/*
- * Também precisar fazer o que o prof pediu de mostrar 10 itens aleatórios na lista do usuário recém criado
- * O registro de usuário está funcional
+const axios = require('axios');
+/* //Criar conta
+ * Agora as 10 ações estão sendo geradas corretamente
+ * 
  */
 router.post('/criarConta', async function (req, res) {
     var email = req.body.email;
@@ -42,19 +42,21 @@ router.post('/criarConta', async function (req, res) {
     }
 
     try {
-        var usuario = await db.query(
+        var [usuario] = await db.query(
             `
                 INSERT INTO usuario (email, senha_hash, saldo, numero_falhas_login, ultima_hora_negociacao) 
                 VALUES (?, ?, 0, 0, CONCAT(DATE(NOW()), ' 14:00:00'));
             `,
             [email, senha_hash]
         );
+        await gerarAçõesInteresse(usuario.insertId);
         res.json({ message: 'O usuário foi registrado.' });
         await db.end();
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Erro no servidor ao criar conta' });
     }
+
 });
 
 //Realizar login
@@ -315,5 +317,48 @@ function verificaSenhaValida(senha) {
     }
     
     return /.*[a-zA-Z].*$/.test(senha) && /.*[0-9].*$/.test(senha);
+}
+
+//Gerar as 10 ações para o usuário recém-criado
+async function gerarAçõesInteresse(idUsuario) {
+    let acoes;
+    
+    const url = `https://raw.githubusercontent.com/marciobarros/dsw-simulador-corretora/refs/heads/main/0.json`;
+    await axios
+        .get(url)
+        .then((response) => {
+            acoes = response.data;
+        })
+        .catch((err) => {
+            console.log(err);
+            throw new Error('ERRO: Não foi possivel pegar as ações do mercado');
+        });
+
+    const limite = acoes.length;
+    let qtdTickersAdicionados = 0;
+    let ordem = 1;
+    const db = await getConnection();
+    while (qtdTickersAdicionados != 10) {
+        const aleatorio = Math.floor(Math.random() * limite);
+        const [buscaTicker] = await db.query(
+            `
+            SELECT ticker FROM acao_interesse
+            WHERE ticker = ? AND fk_usuario_id = ?
+            `,
+            [acoes[aleatorio].ticker, idUsuario]
+        );
+
+        if (buscaTicker.length !== 0) continue;
+        else {
+            await db.query(
+                `
+                INSERT INTO acao_interesse(ticker, ordem, fk_usuario_id)
+                VALUES(?, ?, ?)
+                `, [acoes[aleatorio].ticker, ordem, idUsuario]
+            )
+            qtdTickersAdicionados++;
+            ordem++;
+        }
+    }
 }
 module.exports = router;
