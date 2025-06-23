@@ -218,7 +218,7 @@ router.post('/senha/token', async function (req, res) {
         await db.end();
 
         // Geração do link de recuperação
-        const linkRecuperacao = `https://localhost:3000/usuario/senha/recuperar?email=${encodeURIComponent(
+        const linkRecuperacao = `http://localhost:3000/usuario/senha/recuperar?email=${encodeURIComponent(
             email
         )}&token=${token}`;
 
