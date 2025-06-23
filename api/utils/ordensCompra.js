@@ -1,4 +1,5 @@
 const { verifyToken } = require("../auth/auth");
+const { MODO_OPERACAO_LIMITADA } = require("../constants/modoOperacao");
 const getConnection = require("../model/dbConnection");
 const { obterMinutoNegociacaoUsuario } = require("./negociacaoUsuario");
 const { obterPrecoMercado } = require("./precoMercado");
@@ -74,9 +75,9 @@ async function obterOrdensCompraPendentes(idUsuario) {
         `
         SELECT id, ticker, quantidade, preco_referencia as precoReferencia
         FROM ordem_compra
-        WHERE fk_usuario_id = ? AND executada = 0 AND modo = 1 -- apenas limitadas
+        WHERE fk_usuario_id = ? AND executada = 0 AND modo = ? -- apenas limitadas
         `,
-        [idUsuario]
+        [idUsuario, MODO_OPERACAO_LIMITADA]
     );
     await db.end();
     return ordensCompraPendentes;
