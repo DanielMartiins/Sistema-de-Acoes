@@ -39,12 +39,12 @@ router.put('/', async function (req, res) {
         const ordensVendaExecutadas = await executarOrdensVenda(req, res);
         console.log('Retorno:', ordensVendaExecutadas);
 
-        /*
+        
         //Verificar se há ordens de compra pendentes que estão favoráveis para serem executadas 
         console.log('Verificando se é possível executar ordem de venda');
         const ordensCompraExecutadas = await executarOrdensCompra(req, res); 
         console.log('Retorno:', ordensCompraExecutadas);
-        */
+        
         res.json({
             message: `Hora de negociação atualizada para 14:${novoMinuto
                 .toString()
