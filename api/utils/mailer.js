@@ -4,14 +4,14 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'seu.email@gmail.com',
-        pass: 'sua-senha-de-aplicativo'
+        user: 'TesteAcoesUNIRIO@proton.me',
+        pass: 'TESTEACOESUNIRIO'
     }
 });
 
 async function enviarEmail(destinatario, assunto, html) {
     await transporter.sendMail({
-        from: '"Sistema de Ações" <seu.email@gmail.com>',
+        from: '"Sistema de Ações" <TesteAcoesUNIRIO@proton.me>',
         to: destinatario,
         subject: assunto,
         html: html
