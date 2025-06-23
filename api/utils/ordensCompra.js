@@ -1,8 +1,8 @@
-const { verifyToken } = require("../auth/auth");
-const { MODO_OPERACAO_LIMITADA } = require("../constants/modoOperacao");
-const getConnection = require("../model/dbConnection");
-const { obterMinutoNegociacaoUsuario } = require("./negociacaoUsuario");
-const { obterPrecoMercado } = require("./precoMercado");
+const { verifyToken } = require('../auth/auth');
+const { MODO_OPERACAO_LIMITADA } = require('../constants/modoOperacao');
+const getConnection = require('../model/dbConnection');
+const { obterMinutoNegociacaoUsuario } = require('./negociacaoUsuario');
+const { obterPrecoMercado } = require('./precoMercado');
 
 // Verificar ordens de compra pendentes e executá-las quando o preço está favorável
 async function executarOrdensCompra(req, res) {
@@ -25,8 +25,7 @@ async function executarOrdensCompra(req, res) {
             console.log(`${precoAtualTicker} <= ${ordemCompra.precoReferencia}?`);
             // Se o preço atual for favorável, executa a ordem
             if (precoAtualTicker <= ordemCompra.precoReferencia) {
-                if (!await possuiSaldoSuficiente(idUsuario, precoAtualTicker))
-                    continue;
+                if (!(await possuiSaldoSuficiente(idUsuario, precoAtualTicker))) continue;
                 try {
                     await executarOrdemCompra(idUsuario, ordemCompra.id, precoAtualTicker);
                     qtdeOrdensExecutadas++;
@@ -46,7 +45,6 @@ async function executarOrdensCompra(req, res) {
             quantidadeOrdensExecutadas: qtdeOrdensExecutadas,
             ordensExecutadas: ordensExecutadas,
         };
-
     } catch (err) {
         console.log(err);
         return res.status(500).json({ message: 'Ocorreu uma falha no servidor.' });
@@ -57,10 +55,11 @@ async function executarOrdensCompra(req, res) {
 async function executarOrdemCompra(idUsuario, idOrdemCompra, precoExecucao) {
     const db = await getConnection();
     try {
-        await db.query(
-            `CALL executar_ordem_compra(?, ?, ?)`,
-            [idUsuario, idOrdemCompra, precoExecucao]
-        );
+        await db.query(`CALL executar_ordem_compra(?, ?, ?)`, [
+            idUsuario,
+            idOrdemCompra,
+            precoExecucao,
+        ]);
         await db.end();
     } catch (err) {
         await db.end();
@@ -89,8 +88,9 @@ async function possuiSaldoSuficiente(idUsuario, preco) {
         `
         SELECT saldo FROM usuario
         WHERE id = ?
-        `, [idUsuario]
-    )
+        `,
+        [idUsuario]
+    );
 
     return consulta[0].saldo >= preco;
 }
@@ -98,5 +98,5 @@ async function possuiSaldoSuficiente(idUsuario, preco) {
 module.exports = {
     executarOrdensCompra,
     executarOrdemCompra,
-    obterOrdensCompraPendentes
+    obterOrdensCompraPendentes,
 };
