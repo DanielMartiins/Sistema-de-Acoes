@@ -15,7 +15,7 @@ BEGIN
 
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Houve uma falha ao executar a ordem de compra.';
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Houve uma falha ao executar a ordem de compra. Usuário possui saldo suficiente?';
         ROLLBACK;
     END;
 
