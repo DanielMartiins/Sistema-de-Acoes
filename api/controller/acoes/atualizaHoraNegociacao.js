@@ -15,7 +15,8 @@ router.put('/', async function (req, res) {
 
     const idUsuario = claims.user_id;
     const novoMinuto = parseInt(req.body.novoMinuto);
-    const ultimaHoraNegociacao = await obterMinutoNegociacaoUsuario(idUsuario);
+    let ultimaHoraNegociacao = await obterMinutoNegociacaoUsuario(idUsuario);
+    ultimaHoraNegociacao = 0;
 
     if (!novoMinuto) {
         res.status(400).json({ message: 'Minuto inválido.' });
@@ -42,7 +43,7 @@ router.put('/', async function (req, res) {
 
         
         //Verificar se há ordens de compra pendentes que estão favoráveis para serem executadas 
-        console.log('Verificando se é possível executar ordem de venda');
+        console.log('Verificando se é possível executar ordem de compra');
         const ordensCompraExecutadas = await executarOrdensCompra(req, res); 
         console.log('Retorno:', ordensCompraExecutadas);
         
@@ -50,7 +51,8 @@ router.put('/', async function (req, res) {
             message: `Hora de negociação atualizada para 14:${novoMinuto
                 .toString()
                 .padStart(2, '0')} com sucesso.`,
-                vendasExecutadas: ordensVendaExecutadas
+                vendasExecutadas: ordensVendaExecutadas,
+                comprasExecutadas: ordensCompraExecutadas
             });
         } catch (err) {
             console.log(err);

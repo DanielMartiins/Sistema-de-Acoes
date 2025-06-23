@@ -40,10 +40,10 @@ async function executarOrdensCompra(req, res) {
             }
         }
 
-        return res.json({
+        return {
             quantidadeOrdensExecutadas: qtdeOrdensExecutadas,
             ordensExecutadas: ordensExecutadas,
-        });
+        };
 
     } catch (err) {
         console.log(err);

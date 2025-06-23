@@ -42,13 +42,13 @@ async function executarOrdensVenda(req, res) {
                 console.log(`Ordem de venda com id ${ordemVenda.id} executada`);
             }
         }
-        res.json({
+        return {
             quantidadeOrdensExecutadas: qtdeOrdensExecutadas,
             ordensExecutadas: ordensExecutadas,
-        });
+        };
     } catch (err) {
         console.log(err);
-        res.status(500).json({ message: 'Ocorreu uma falha no servidor.' });
+        return null;
     }
 }
 
