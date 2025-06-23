@@ -23,10 +23,12 @@ router.post('/mercado', async (req, res) => {
     if (!quantidade || quantidade <= 0) return res.status(400).json({ message: 'Quantidade inválida.' });
 
     let db;
-
     try {
         const minuto = await obterMinutoNegociacaoUsuario(idUsuario);
         const precoAtual = await obterPrecoMercado(ticker, minuto);
+        const possuiSaldo = await possuiSaldoSuficiente(idUsuario, precoAtual);
+        if (!possuiSaldo)
+            return res.status(400).json({message: "A conta não possui saldo suficiente."});
 
         db = await getConnection();
         const [resultado] = await db.query(
@@ -77,10 +79,15 @@ router.post('/limitada', async (req, res) => {
 
         const idOrdemCompra = resultado[0][0].insertId;
         await db.end();
-
+        
         if (precoAtual <= precoReferencia) {
-            await executarOrdemCompra(idUsuario, idOrdemCompra, precoAtual);
-            return res.json({ message: 'Ordem registrada e executada (preço atual <= referência).' });
+            const possuiSaldo = await possuiSaldoSuficiente(idUsuario, precoReferencia);
+            console.log(possuiSaldo);
+            if (possuiSaldo) {
+                await executarOrdemCompra(idUsuario, idOrdemCompra, precoAtual);
+                return res.json({ message: 'Ordem registrada e executada (preço atual <= referência).' });
+            }
+            else return res.json({message: `Ordem registrada. O preço já está igual ou abaixo de ${precoReferencia} (custando ${precoAtual}) porém a conta não possui saldo suficiente. `})
         }
 
         res.json({ message: 'Ordem registrada com sucesso.' });
@@ -145,6 +152,16 @@ async function executarOrdemCompra(idUsuario, idOrdemCompra, precoExecucao) {
     }
 }
 
+async function possuiSaldoSuficiente(idUsuario, preco) {
+    const db = await getConnection();
+    const [consulta] = await db.query(
+        `
+        SELECT saldo FROM usuario
+        WHERE id = ?
+        `, [idUsuario]
+    )
 
+    return consulta[0].saldo >= preco;
+}
 
 module.exports = router;
