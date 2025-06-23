@@ -11,7 +11,7 @@ const { enviarEmail } = require('../utils/mailer.js');
 const axios = require('axios');
 /* //Criar conta
  * Agora as 10 ações estão sendo geradas corretamente
- * 
+ *
  */
 router.post('/criarConta', async function (req, res) {
     var email = req.body.email;
@@ -20,12 +20,9 @@ router.post('/criarConta', async function (req, res) {
     var senha_hash = await bcrypt.hash(senha, 10);
     var db = await getConnection();
 
-    var usuarioEmail = await db.query(
-        'SELECT email FROM usuario WHERE email = ?;',
-        [email]
-    );
-    if ( usuarioEmail[0].length > 0) {
-        res.status(400).json({message: "Já existe um usuário registrado com este e-mail."});
+    var usuarioEmail = await db.query('SELECT email FROM usuario WHERE email = ?;', [email]);
+    if (usuarioEmail[0].length > 0) {
+        res.status(400).json({ message: 'Já existe um usuário registrado com este e-mail.' });
         return;
     }
 
@@ -34,7 +31,9 @@ router.post('/criarConta', async function (req, res) {
     }
 
     if (!verificaSenhaValida(senha)) {
-        return res.status(400).json({ message: 'Senha inválida. Deve conter ao menos 8 caracteres alfanuméricos.' });
+        return res
+            .status(400)
+            .json({ message: 'Senha inválida. Deve conter ao menos 8 caracteres alfanuméricos.' });
     }
 
     if (senha !== senhaRepetida) {
@@ -56,14 +55,13 @@ router.post('/criarConta', async function (req, res) {
         console.error(err);
         res.status(500).json({ message: 'Erro no servidor ao criar conta' });
     }
-
 });
 
 //Realizar login
 router.post('/login', async function (req, res) {
     var email = req.body.email;
     var senha = req.body.senha;
-    
+
     if (!verificaEmailValido(email)) {
         return res.status(400).json({ message: 'Email inválido.' });
     }
@@ -121,22 +119,28 @@ router.post('/logout', function (req, res) {
 });
 //Recuperação/Redefinição de senha (A página acessada após interagir com o link enviado por email)
 router.post('/senha/recuperar', async function (req, res) {
-    const { email, token, novaSenha } = req.body;
-
+    const email = req.query.email;
+    const token = req.query.token;
+    const novaSenha = req.body.novaSenha;
+    console.log(email);
     // Validação básica dos dados
     if (!verificaEmailValido(email)) {
         return res.status(400).json({ mensagem: 'Email inválido.' });
     }
 
     if (!verificaSenhaValida(novaSenha)) {
-        return res.status(400).json({ mensagem: 'Senha inválida. Deve conter ao menos 8 caracteres, letras e números.' });
+        return res
+            .status(400)
+            .json({
+                mensagem: 'Senha inválida. Deve conter ao menos 8 caracteres, letras e números.',
+            });
     }
 
     try {
         const db = await getConnection();
 
         // Verifica se o token existe e ainda está válido
-        const resultado = await db.query(
+        const [resultado] = await db.query(
             `
             SELECT id, data_token_rec_senha 
             FROM usuario 
@@ -164,7 +168,7 @@ router.post('/senha/recuperar', async function (req, res) {
 
         // Atualiza a senha
         const novaSenhaHash = await bcrypt.hash(novaSenha, 10);
-
+        console.log(usuario.id);
         await db.query(
             `
             UPDATE usuario 
@@ -176,7 +180,6 @@ router.post('/senha/recuperar', async function (req, res) {
 
         await db.end();
         res.json({ mensagem: 'Senha atualizada com sucesso.' });
-
     } catch (err) {
         console.error(err);
         res.status(500).json({ mensagem: 'Erro no servidor ao recuperar senha.' });
@@ -194,10 +197,7 @@ router.post('/senha/token', async function (req, res) {
     try {
         const db = await getConnection();
 
-        const resultado = await db.query(
-            `SELECT id FROM usuario WHERE email = ?;`,
-            [email]
-        );
+        const resultado = await db.query(`SELECT id FROM usuario WHERE email = ?;`, [email]);
 
         const usuario = resultado[0][0];
         if (!usuario) {
@@ -217,8 +217,10 @@ router.post('/senha/token', async function (req, res) {
 
         await db.end();
 
-        // Geração do link de recuperação NECESSÁRIO PÔR O LINK QUE SERÁ ACESSADO NA HORA (LOCALHOST??)
-        const linkRecuperacao = `https://?/redefinir-senha?email=${encodeURIComponent(email)}&token=${token}`;
+        // Geração do link de recuperação
+        const linkRecuperacao = `https://localhost:3000/usuario/senha/recuperar?email=${encodeURIComponent(
+            email
+        )}&token=${token}`;
 
         // Conteúdo do e-mail (HTML ou texto)
         const htmlEmail = `
@@ -231,7 +233,6 @@ router.post('/senha/token', async function (req, res) {
         await enviarEmail(email, 'Recuperação de senha - Sistema de Ações', htmlEmail);
 
         res.json({ mensagem: 'Link de recuperação enviado para o e-mail.' });
-
     } catch (err) {
         console.error(err);
         res.status(500).json({ mensagem: 'Erro no servidor ao gerar token.' });
@@ -254,17 +255,16 @@ router.put('/senha', async function (req, res) {
     // Valida a nova senha
     if (!verificaSenhaValida(novaSenha)) {
         return res.status(400).json({
-            mensagem: 'Nova senha inválida. Deve conter ao menos 8 caracteres, letras e números.'
+            mensagem: 'Nova senha inválida. Deve conter ao menos 8 caracteres, letras e números.',
         });
     }
 
     try {
         const db = await getConnection();
 
-        const resultado = await db.query(
-            `SELECT senha_hash FROM usuario WHERE id = ? LIMIT 1;`,
-            [userId]
-        );
+        const resultado = await db.query(`SELECT senha_hash FROM usuario WHERE id = ? LIMIT 1;`, [
+            userId,
+        ]);
 
         const usuario = resultado[0][0];
         if (!usuario) {
@@ -280,14 +280,10 @@ router.put('/senha', async function (req, res) {
 
         const novaSenhaHash = await bcrypt.hash(novaSenha, 10);
 
-        await db.query(
-            `UPDATE usuario SET senha_hash = ? WHERE id = ?;`,
-            [novaSenhaHash, userId]
-        );
+        await db.query(`UPDATE usuario SET senha_hash = ? WHERE id = ?;`, [novaSenhaHash, userId]);
 
         await db.end();
         res.json({ mensagem: 'Senha alterada.' });
-
     } catch (err) {
         console.error(err);
         res.status(500).json({ mensagem: 'Erro no servidor ao trocar senha.' });
@@ -300,7 +296,7 @@ function verificaEmailValido(email) {
     if (!email) {
         return false;
     }
-    
+
     return /^[A-Za-z0-9._%-]+@([A-Za-z0-9-].)+[A-Za-z]{2,4}$/.test(email);
 }
 
@@ -315,14 +311,14 @@ function verificaSenhaValida(senha) {
     if (senha.length < 8) {
         return false;
     }
-    
+
     return /.*[a-zA-Z].*$/.test(senha) && /.*[0-9].*$/.test(senha);
 }
 
 //Gerar as 10 ações para o usuário recém-criado
 async function gerarAçõesInteresse(idUsuario) {
     let acoes;
-    
+
     const url = `https://raw.githubusercontent.com/marciobarros/dsw-simulador-corretora/refs/heads/main/0.json`;
     await axios
         .get(url)
@@ -354,8 +350,9 @@ async function gerarAçõesInteresse(idUsuario) {
                 `
                 INSERT INTO acao_interesse(ticker, ordem, fk_usuario_id)
                 VALUES(?, ?, ?)
-                `, [acoes[aleatorio].ticker, ordem, idUsuario]
-            )
+                `,
+                [acoes[aleatorio].ticker, ordem, idUsuario]
+            );
             qtdTickersAdicionados++;
             ordem++;
         }
