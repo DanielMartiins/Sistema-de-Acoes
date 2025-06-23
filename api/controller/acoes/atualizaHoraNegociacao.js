@@ -15,8 +15,7 @@ router.put('/', async function (req, res) {
 
     const idUsuario = claims.user_id;
     const novoMinuto = parseInt(req.body.novoMinuto);
-    let ultimaHoraNegociacao = await obterMinutoNegociacaoUsuario(idUsuario);
-    ultimaHoraNegociacao = 0;
+    const ultimaHoraNegociacao = await obterMinutoNegociacaoUsuario(idUsuario);
 
     if (!novoMinuto) {
         res.status(400).json({ message: 'Minuto inválido.' });
