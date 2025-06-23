@@ -3,6 +3,7 @@ const getConnection = require('../../model/dbConnection');
 const { verifyToken } = require('../../auth/auth');
 const { obterMinutoNegociacaoUsuario } = require('../../utils/negociacaoUsuario');
 const { executarOrdensVenda } = require('../../utils/ordensVenda');
+const { executarOrdensCompra } = require('../../utils/ordensCompra')
 const router = express.Router();
 
 router.put('/', async function (req, res) {
