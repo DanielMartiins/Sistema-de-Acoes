@@ -114,10 +114,16 @@ router.get('/', async function (req, res) {
 
         const resultado = await db.query(
             `
-            SELECT id, ticker, quantidade, executada
+            SELECT 
+                ticker,
+                quantidade,
+                DATE_FORMAT(data_hora, '%d-%m-%Y %H:%i:%s') AS dataHoraRegistro,
+                preco_referencia AS precoReferencia,
+                executada,
+                preco_execucao as precoExecucao,
+                DATE_FORMAT(data_hora_execucao, '%d-%m-%Y %H:%i:%s') AS dataHoraExecucao
             FROM ordem_compra
-            WHERE fk_usuario_id = ?
-            ORDER BY data_hora DESC;
+            WHERE fk_usuario_id = ?;
             `,
             [userId]
         );
