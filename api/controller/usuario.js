@@ -218,7 +218,7 @@ router.post('/senha/token', async function (req, res) {
         await db.end();
 
         // Geração do link de recuperação NECESSÁRIO PÔR O LINK QUE SERÁ ACESSADO NA HORA (LOCALHOST??)
-        const linkRecuperacao = `https://?/redefinir-senha?email=${encodeURIComponent(email)}&token=${token}`;
+        const linkRecuperacao = `https://localhost:3000/usuario/senha/recuperar?email=${encodeURIComponent(email)}&token=${token}`;
 
         // Conteúdo do e-mail (HTML ou texto)
         const htmlEmail = `
