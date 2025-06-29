@@ -1,5 +1,8 @@
 const axios = require('axios');
 
+let tickersMercado = null, minutoObtido = null;
+let tickersFechamento = null;
+
 async function obterPrecoMercado(ticker, minutoNegociacao) {
     if (!ticker) throw new Error(`ERRO: Ticker indefinido`);
     if (ticker.trim() === '') throw new Error(`ERRO: Ticker vazio.`);
@@ -14,9 +17,13 @@ async function obterPrecoMercado(ticker, minutoNegociacao) {
         );
     }
 
-    const url = `https://raw.githubusercontent.com/marciobarros/dsw-simulador-corretora/refs/heads/main/${minutoNegociacao}.json`;
-    let response = await axios.get(url);
-    const precoAcoes = response.data;
+    if (tickersMercado === null || minutoObtido !== minutoNegociacao) {
+        const url = `https://raw.githubusercontent.com/marciobarros/dsw-simulador-corretora/refs/heads/main/${minutoNegociacao}.json`;
+        let response = await axios.get(url);
+        tickersMercado = response.data;
+        minutoObtido = minutoNegociacao;
+    }
+    const precoAcoes = tickersMercado;
     const acaoDesejada = precoAcoes.find((acao) => acao.ticker === ticker);
 
     if (!acaoDesejada) throw new Error(`ERRO: Ticker ${ticker} não encontrado.`);
@@ -27,9 +34,12 @@ async function obterPrecoFechamento(ticker) {
     if (!ticker) throw new Error(`ERRO: Ticker indefinido.`);
     if (ticker.trim() === '') throw new Error(`ERRO: Ticker vazio.`);
 
-    const url = `https://raw.githubusercontent.com/marciobarros/dsw-simulador-corretora/refs/heads/main/tickers.json`;
-    let response = await axios.get(url);
-    const precoAcoes = response.data;
+    if (tickersFechamento === null) {
+        const url = `https://raw.githubusercontent.com/marciobarros/dsw-simulador-corretora/refs/heads/main/tickers.json`;
+        let response = await axios.get(url);
+        tickersFechamento = response.data;
+    }
+    const precoAcoes = tickersFechamento;
     const acaoDesejada = precoAcoes.find((acao) => acao.ticker === ticker);
 
     if (!acaoDesejada) throw new Error(`ERRO: Ticker ${ticker} não encontrado.`);
