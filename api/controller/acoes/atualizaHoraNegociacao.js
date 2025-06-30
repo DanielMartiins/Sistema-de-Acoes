@@ -35,16 +35,39 @@ router.put('/', async function (req, res) {
         //Atualizar hora de negociação
         await atualizaHoraNegociacao(idUsuario, novoMinuto);
 
-        //Verificar se há ordens de venda pendentes que estão favoráveis para serem executadas
-        console.log('Verificando se é possível executar ordem de venda');
-        const ordensVendaExecutadas = await executarOrdensVenda(req, res);
-        console.log('Retorno:', ordensVendaExecutadas);
+        let ordensVendaExecutadas = {
+            quantidadeOrdensExecutadas: 0,
+            ordensExecutadas: [],
+        };
+        let ordensCompraExecutadas = {
+            quantidadeOrdensExecutadas: 0,
+            ordensExecutadas: [],
+        };
+        let minutoAtual = ultimaHoraNegociacao;
 
-        //Verificar se há ordens de compra pendentes que estão favoráveis para serem executadas
-        console.log('Verificando se é possível executar ordem de compra');
-        const ordensCompraExecutadas = await executarOrdensCompra(req, res);
-        console.log('Retorno:', ordensCompraExecutadas);
+        while (minutoAtual != novoMinuto) {
+            //Verificar se há ordens de venda pendentes que estão favoráveis para serem executadas
+            console.log('Verificando se é possível executar ordem de venda');
+            const vendas = await executarOrdensVenda(req, res);
+            if (vendas.quantidadeOrdensExecutadas !== 0) {
+                ordensVendaExecutadas.quantidadeOrdensExecutadas +=
+                    vendas.quantidadeOrdensExecutadas;
+                ordensVendaExecutadas.ordensExecutadas.push(vendas.ordensExecutadas);
+            }
+            console.log('Retorno:', ordensVendaExecutadas);
 
+            //Verificar se há ordens de compra pendentes que estão favoráveis para serem executadas
+            console.log('Verificando se é possível executar ordem de compra');
+            const compras = await executarOrdensCompra(req, res);
+            if (compras.quantidadeOrdensExecutadas !== 0) {
+                ordensCompraExecutadas.quantidadeOrdensExecutadas +=
+                    compras.quantidadeOrdensExecutadas;
+                ordensCompraExecutadas.ordensExecutadas.push(compras.ordensExecutadas);
+            }
+            console.log('Retorno:', ordensCompraExecutadas);
+
+            minutoAtual++;
+        }
         res.json({
             message: `Hora de negociação atualizada para 14:${novoMinuto
                 .toString()
