@@ -18,7 +18,12 @@ const routes = [
     {
         path: '/login',
         name: 'login',
-        component: () => import('../components/login/login/FormLogin.vue'),
+        component: () => import('../components/usuario/login/FormLogin.vue'),
+    },
+        {
+        path: '/cadastro',
+        name: 'cadastro',
+        component: () => import('../components/usuario/cadastro/CriacaoConta.vue'),
     },
 ];
 

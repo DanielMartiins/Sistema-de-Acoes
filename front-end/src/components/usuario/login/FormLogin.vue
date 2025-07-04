@@ -34,8 +34,13 @@
             <v-text-field label="Email" v-model="form.email"></v-text-field>
             <v-text-field label="Senha" v-model="form.senha"></v-text-field>
 
-            <div class="d-flex align-center justify-sm-space-between">
+            <div class="d-flex align-center justify-space-between">
               <v-btn color="indigo-darken-2" @click="processarLogin">Entrar</v-btn>
+              <v-card-text>
+                <router-link class="link" href :to="{ name: 'cadastro' }">
+                  <a class="btn btn-lg btn-success" href="" role="button">Criar conta</a>
+                </router-link>
+              </v-card-text>
             </div>
           </v-form>
         </v-container>
