@@ -43,10 +43,10 @@ router.post('/criarConta', async function (req, res) {
     try {
         var [usuario] = await db.query(
             `
-                INSERT INTO usuario (email, senha_hash, saldo, numero_falhas_login, ultima_hora_negociacao) 
+                INSERT INTO usuario (email, senha_hash, saldo, numero_falhas_login, ultima_hora_negociacao)
                 VALUES (?, ?, 0, 0, CONCAT(DATE(NOW()), ' 14:00:00'));
             `,
-            [email, senha_hash]
+            [email, senha_hash],
         );
         await gerarAçõesInteresse(usuario.insertId);
         res.json({ message: 'O usuário foi registrado.' });
@@ -70,10 +70,10 @@ router.post('/login', async function (req, res) {
         var db = await getConnection();
 
         var usuario = await db.query(
-            `SELECT usuario.id, usuario.email, senha_hash, numero_falhas_login 
-            FROM usuario 
+            `SELECT usuario.id, usuario.email, senha_hash, numero_falhas_login
+            FROM usuario
             WHERE usuario.email = ?;`,
-            [email]
+            [email],
         );
         usuario = usuario[0][0];
         if (!usuario) {
@@ -83,28 +83,28 @@ router.post('/login', async function (req, res) {
         var senhaCorreta = await bcrypt.compare(senha, usuario.senha_hash);
         if (!senhaCorreta) {
             await db.query(
-                `UPDATE usuario 
+                `UPDATE usuario
                 SET numero_falhas_login = numero_falhas_login + 1
                 WHERE id = ?;
                 `,
-                [usuario.id]
+                [usuario.id],
             );
             res.status(400).json('Dados inválidos.');
             return;
         } else if (senhaCorreta && usuario.numero_falhas_login > 0) {
             await db.query(
-                `UPDATE usuario 
+                `UPDATE usuario
                 SET numero_falhas_login = 0
                 WHERE id = ?;
                 `,
-                [usuario.id]
+                [usuario.id],
             );
         }
 
         const token = jwt.sign(
             { user_id: usuario.id, email: usuario.email },
             config.auth.tokenKey,
-            { expiresIn: '2h' }
+            { expiresIn: '2h' },
         );
         res.json({ message: 'Login bem sucedido', token });
     } catch (err) {
@@ -129,11 +129,9 @@ router.post('/senha/recuperar', async function (req, res) {
     }
 
     if (!verificaSenhaValida(novaSenha)) {
-        return res
-            .status(400)
-            .json({
-                mensagem: 'Senha inválida. Deve conter ao menos 8 caracteres, letras e números.',
-            });
+        return res.status(400).json({
+            mensagem: 'Senha inválida. Deve conter ao menos 8 caracteres, letras e números.',
+        });
     }
 
     try {
@@ -142,11 +140,11 @@ router.post('/senha/recuperar', async function (req, res) {
         // Verifica se o token existe e ainda está válido
         const [resultado] = await db.query(
             `
-            SELECT id, data_token_rec_senha 
-            FROM usuario 
+            SELECT id, data_token_rec_senha
+            FROM usuario
             WHERE email = ? AND token_rec_senha = ?;
             `,
-            [email, token]
+            [email, token],
         );
 
         const usuario = resultado[0];
@@ -171,11 +169,11 @@ router.post('/senha/recuperar', async function (req, res) {
         console.log(usuario.id);
         await db.query(
             `
-            UPDATE usuario 
-            SET senha_hash = ?, token_rec_senha = NULL, data_token_rec_senha = NULL 
+            UPDATE usuario
+            SET senha_hash = ?, token_rec_senha = NULL, data_token_rec_senha = NULL
             WHERE id = ?;
             `,
-            [novaSenhaHash, usuario.id]
+            [novaSenhaHash, usuario.id],
         );
 
         await db.end();
@@ -209,17 +207,17 @@ router.post('/senha/token', async function (req, res) {
         const agora = new Date();
 
         await db.query(
-            `UPDATE usuario 
-             SET token_rec_senha = ?, data_token_rec_senha = ? 
+            `UPDATE usuario
+             SET token_rec_senha = ?, data_token_rec_senha = ?
              WHERE id = ?;`,
-            [token, agora, usuario.id]
+            [token, agora, usuario.id],
         );
 
         await db.end();
 
         // Geração do link de recuperação
         const linkRecuperacao = `http://localhost:3000/usuario/senha/recuperar?email=${encodeURIComponent(
-            email
+            email,
         )}&token=${token}`;
 
         // Conteúdo do e-mail (HTML ou texto)
@@ -297,7 +295,7 @@ function verificaEmailValido(email) {
         return false;
     }
 
-    return /^[A-Za-z0-9._%-]+@([A-Za-z0-9-].)+[A-Za-z]{2,4}$/.test(email);
+    return /^[A-Za-z0-9._%-]+@([A-Za-z0-9-]+\.)+[A-Za-z]{2,4}$/.test(email);
 }
 
 //
@@ -341,7 +339,7 @@ async function gerarAçõesInteresse(idUsuario) {
             SELECT ticker FROM acao_interesse
             WHERE ticker = ? AND fk_usuario_id = ?
             `,
-            [acoes[aleatorio].ticker, idUsuario]
+            [acoes[aleatorio].ticker, idUsuario],
         );
 
         if (buscaTicker.length !== 0) continue;
@@ -351,7 +349,7 @@ async function gerarAçõesInteresse(idUsuario) {
                 INSERT INTO acao_interesse(ticker, ordem, fk_usuario_id)
                 VALUES(?, ?, ?)
                 `,
-                [acoes[aleatorio].ticker, ordem, idUsuario]
+                [acoes[aleatorio].ticker, ordem, idUsuario],
             );
             qtdTickersAdicionados++;
             ordem++;
