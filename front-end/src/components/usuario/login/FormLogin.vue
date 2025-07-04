@@ -22,7 +22,7 @@
         />
 
         <v-alert
-          v-if="loginBemSucedido !== true"
+          v-if="loginBemSucedido === true"
           type="success"
           class="mb-4"
           style="max-width: 400px"
