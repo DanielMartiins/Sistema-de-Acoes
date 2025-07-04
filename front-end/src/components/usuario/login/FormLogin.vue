@@ -68,8 +68,8 @@ const credentials = appContext.config.globalProperties.credentials;
 const config = appContext.config.globalProperties.config;
 
 const form = ref({
-  email: 'danieldemoraiis@gmail.com',
-  senha: 'teste123',
+  email: '',
+  senha: '',
 });
 const loginBemSucedido = ref(null);
 const falhaNoServidor = ref(false);
