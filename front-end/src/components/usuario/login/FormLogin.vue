@@ -27,7 +27,14 @@
           class="mb-4"
           title="Login realizado com sucesso"
           style="max-width: 400px"
-        />
+        >
+          <v-progress-circular
+            color="primary"
+            indeterminate="disable-shrink"
+            size="16"
+            width="2"
+          ></v-progress-circular>
+        </v-alert>
 
         <v-container class="rounded-lg" :width="400" style="background-color: #212121">
           <v-form>
@@ -50,9 +57,11 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router';
 import { ref, getCurrentInstance } from 'vue';
 import axios from 'axios';
 
+const router = useRouter();
 const { appContext } = getCurrentInstance();
 const credentials = appContext.config.globalProperties.credentials;
 const config = appContext.config.globalProperties.config;
@@ -81,6 +90,10 @@ function processarLogin() {
       credentials.value = response.data.token;
       loginBemSucedido.value = true;
       falhaNoServidor.value = false;
+      setTimeout(() => {
+        loginBemSucedido.value = null;
+        router.push({ name: 'home' });
+      }, 2000);
     })
     .catch((err) => {
       console.log(err.response);
