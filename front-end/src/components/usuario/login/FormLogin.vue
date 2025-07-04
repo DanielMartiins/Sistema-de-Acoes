@@ -22,18 +22,19 @@
         />
 
         <v-alert
-          v-if="loginBemSucedido === true"
+          v-if="loginBemSucedido !== true"
           type="success"
           class="mb-4"
-          title="Login realizado com sucesso"
           style="max-width: 400px"
         >
-          <v-progress-circular
+          <div class = "d-flex justify-space-between align-center">Login realizado com sucesso
+            <v-progress-circular
             color="primary"
             indeterminate="disable-shrink"
             size="16"
             width="2"
-          ></v-progress-circular>
+            ></v-progress-circular>
+          </div>
         </v-alert>
 
         <v-container class="rounded-lg" :width="400" style="background-color: #212121">
