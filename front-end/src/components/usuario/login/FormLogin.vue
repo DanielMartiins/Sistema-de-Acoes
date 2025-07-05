@@ -33,7 +33,11 @@
 
         <v-container class="rounded-lg bg-secondary" :width="400">
           <v-form>
-            <v-text-field label="Email" v-model="form.email"></v-text-field>
+            <v-text-field
+              label="Email"
+              v-model="form.email"
+              :disabled="loginBemSucedido === true"
+            ></v-text-field>
 
             <v-card-text class="d-flex">
               <router-link
@@ -44,7 +48,11 @@
                 Esqueci minha senha(NÃO IMPLEMENTADO!!!)
               </router-link>
             </v-card-text>
-            <v-text-field label="Senha" v-model="form.senha"></v-text-field>
+            <v-text-field
+              label="Senha"
+              v-model="form.senha"
+              :disabled="loginBemSucedido === true"
+            ></v-text-field>
 
             <div class="d-flex flex-column align-center">
               <v-btn
