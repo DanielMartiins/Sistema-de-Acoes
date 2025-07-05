@@ -71,6 +71,7 @@
                   { 'opacity-30 bg-primary': !validarFormulario() },
                   { 'opacity-100 bg-primary': validarFormulario() },
                 ]"
+                @click="processarCadastro()"
               >
                 Criar Conta
               </v-btn>
@@ -95,7 +96,6 @@ import axios from 'axios';
 const { appContext } = getCurrentInstance();
 const config = appContext.config.globalProperties.config;
 
-const formularioValido = ref(false);
 const cadastroBemSucedido = ref(null);
 const mensagemErro = ref('');
 
@@ -168,7 +168,6 @@ watch(
   () => {
     //Para limpar mensagens de feedback quando o usuário alterar algum campo do formulário
     cadastroBemSucedido.value = null;
-    formularioValido.value = false;
   },
   { deep: true },
 );
