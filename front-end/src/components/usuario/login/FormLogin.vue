@@ -27,27 +27,42 @@
           class="mb-4"
           style="max-width: 400px"
         >
-          <div class = "d-flex justify-space-between align-center">Login realizado com sucesso
+          <div class="d-flex justify-space-between align-center">
+            Login realizado com sucesso
             <v-progress-circular
-            color="primary"
-            indeterminate="disable-shrink"
-            size="16"
-            width="2"
+              color="primary"
+              indeterminate="disable-shrink"
+              size="16"
+              width="2"
             ></v-progress-circular>
           </div>
         </v-alert>
 
-        <v-container class="rounded-lg" :width="400" style="background-color: #212121">
+        <v-container class="rounded-lg bg-secondary" :width="400">
           <v-form>
             <v-text-field label="Email" v-model="form.email"></v-text-field>
+
+            <v-card-text class="d-flex">
+              <router-link
+                class="ml-auto text-decoration-none text-body-2"
+                href
+                :to="{ name: 'cadastro' }"
+              >
+                Esqueci minha senha(NÃO IMPLEMENTADO!!!)
+              </router-link>
+            </v-card-text>
             <v-text-field label="Senha" v-model="form.senha"></v-text-field>
 
-            <div class="d-flex align-center justify-space-between">
-              <v-btn color="indigo-darken-2" @click="processarLogin">Entrar</v-btn>
+            <div class="d-flex flex-column align-center">
+              <v-btn
+                :disabled="!validarFormulario()"
+                class="w-100 mb-5 bg-primary"
+                @click="processarLogin"
+              >
+                Entrar
+              </v-btn>
               <v-card-text>
-                <router-link class="link" href :to="{ name: 'cadastro' }">
-                  <a class="btn btn-lg btn-success" href="" role="button">Criar conta</a>
-                </router-link>
+                <router-link href :to="{ name: 'cadastro' }"> Criar nova conta </router-link>
               </v-card-text>
             </div>
           </v-form>
@@ -73,6 +88,11 @@ const form = ref({
 });
 const loginBemSucedido = ref(null);
 const falhaNoServidor = ref(false);
+
+function validarFormulario() {
+  return form.value.email.length >= 1 && form.value.senha.length >= 1;
+}
+
 function processarLogin() {
   axios
     .post(
