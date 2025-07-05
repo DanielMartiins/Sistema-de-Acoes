@@ -4,7 +4,6 @@
     <div class="d-flex flex-column justify-center align-center" style="height: 100vh">
       <div>
         <h4 class="text-h4 text-center mb-4">Criar Conta</h4>
-
         <v-alert
           v-if="cadastroBemSucedido === false"
           type="error"
@@ -20,18 +19,15 @@
           style="max-width: 400px"
         >
           <div class="d-flex justify-space-between align-center">
-            Login realizado com sucesso
-            <v-progress-circular
-              color="primary"
-              indeterminate="disable-shrink"
-              size="16"
-              width="2"
-            ></v-progress-circular>
+            Conta criada com sucesso!
+            <router-link class="link" href :to="{ name: 'login' }">
+              <v-btn class="bg-secondary">Entrar</v-btn>
+            </router-link>
           </div>
         </v-alert>
 
-        <v-container class="rounded-lg" :width="400" style="background-color: #212121">
-          <v-form ref="formRef">
+        <v-container class="rounded-lg bg-secondary" :width="400">
+          <v-form>
             <v-text-field
               class="mb-3"
               label="Email"
@@ -40,7 +36,7 @@
               persistent-hint
               :rules="[
                 () => !!form.email || 'Campo obrigatório',
-                () => (!!form.email && verificaEmailValido(form.email)) || 'Email inválido',
+                () => (!!form.email && verificaEmailValido(form.email)) || 'Formato incompleto',
               ]"
             ></v-text-field>
             <v-text-field
@@ -49,8 +45,14 @@
               v-model="form.senha"
               hint="Mínimo de 8 caracteres, contendo letra e número"
               persistent-hint
-              :rules="[() => !!form.senha || 'Campo obrigatório']"
-            ></v-text-field>
+              :rules="[
+                () => !!form.senha || 'Campo obrigatório',
+                () =>
+                  (!!form.senha && verificaSenhaValida(form.senha)) ||
+                  'Mínimo de 8 caracteres, contendo letra e número',
+              ]"
+            >
+            </v-text-field>
             <v-text-field
               class="mb-3"
               label="Senha Repetida"
@@ -61,13 +63,18 @@
               ]"
             ></v-text-field>
 
-            <div class="d-flex align-center justify-space-between">
-              <v-btn color="indigo-darken-2" @click="processarCadastro" :disabled="false"
-                >Criar Conta</v-btn
+            <div class="d-flex flex-column align-center">
+              <v-btn
+                :disabled="!validarFormulario()"
+                class="w-100 mb-5"
+                color="indigo-darken-2"
+                @click="processarCadastro"
               >
+                Criar Conta
+              </v-btn>
               <v-card-text>
                 <router-link class="link" href :to="{ name: 'login' }">
-                  <a class="btn btn-lg btn-success" href="" role="button">Login</a>
+                  Já tenho uma conta
                 </router-link>
               </v-card-text>
             </div>
@@ -79,36 +86,22 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router';
+import { watch } from 'vue';
 import { ref, getCurrentInstance } from 'vue';
 import axios from 'axios';
 
-const router = useRouter();
 const { appContext } = getCurrentInstance();
 const config = appContext.config.globalProperties.config;
 
-const formRef = ref(null);
 const formularioValido = ref(false);
 const cadastroBemSucedido = ref(null);
 const mensagemErro = ref('');
-
-function senhasCoincidem() {
-  return form.value.senha === form.value.senhaRepetida;
-}
 
 const form = ref({
   email: '',
   senha: '',
   senhaRepetida: '',
 });
-
-function verificaEmailValido(email) {
-  if (!email) {
-    return false;
-  }
-
-  return /^[A-Za-z0-9._%-]+@([A-Za-z0-9-]+\.)+[A-Za-z]{2,4}$/.test(email);
-}
 
 function processarCadastro() {
   axios
@@ -127,10 +120,6 @@ function processarCadastro() {
     )
     .then((response) => {
       cadastroBemSucedido.value = true;
-      setTimeout(() => {
-        cadastroBemSucedido.value = null;
-        router.push({ name: 'home' });
-      }, 2000);
       console.log(response.data.message);
     })
     .catch((err) => {
@@ -139,4 +128,46 @@ function processarCadastro() {
       cadastroBemSucedido.value = false;
     });
 }
+
+function verificaEmailValido(email) {
+  if (!email) {
+    return false;
+  }
+
+  return /^[A-Za-z0-9._%-]+@([A-Za-z0-9-]+\.)+[A-Za-z]{2,4}$/.test(email);
+}
+
+function verificaSenhaValida(senha) {
+  if (!senha) {
+    return false;
+  }
+
+  if (senha.length < 8) {
+    return false;
+  }
+
+  return /.*[a-zA-Z].*$/.test(senha) && /.*[0-9].*$/.test(senha);
+}
+
+function senhasCoincidem() {
+  return form.value.senha === form.value.senhaRepetida;
+}
+
+function validarFormulario() {
+  return (
+    verificaEmailValido(form.value.email) &&
+    verificaSenhaValida(form.value.senha) &&
+    senhasCoincidem()
+  );
+}
+
+watch(
+  form,
+  () => {
+    //Para limpar mensagens de feedback quando o usuário alterar algum campo do formulário
+    cadastroBemSucedido.value = null;
+    formularioValido.value = false;
+  },
+  { deep: true },
+);
 </script>
