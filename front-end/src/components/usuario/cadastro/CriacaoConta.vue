@@ -66,9 +66,11 @@
             <div class="d-flex flex-column align-center">
               <v-btn
                 :disabled="!validarFormulario()"
-                class="w-100 mb-5"
-                color="indigo-darken-2"
-                @click="processarCadastro"
+                :class="[
+                  'w-100 mb-5',
+                  { 'opacity-30 bg-primary': !validarFormulario() },
+                  { 'opacity-100 bg-primary': validarFormulario() },
+                ]"
               >
                 Criar Conta
               </v-btn>

@@ -56,7 +56,11 @@
             <div class="d-flex flex-column align-center">
               <v-btn
                 :disabled="!validarFormulario()"
-                class="w-100 mb-5 bg-primary"
+                :class="[
+                  'w-100 mb-5',
+                  { 'opacity-30 bg-primary': !validarFormulario() },
+                  { 'opacity-100 bg-primary': validarFormulario() },
+                ]"
                 @click="processarLogin"
               >
                 Entrar
