@@ -78,6 +78,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router';
+import { watch } from 'vue';
 import { ref, getCurrentInstance } from 'vue';
 import axios from 'axios';
 
@@ -127,4 +128,13 @@ function processarLogin() {
       else falhaNoServidor.value = false;
     });
 }
+
+watch(
+  form,
+  () => {
+    //Para limpar mensagens de feedback quando o usuário alterar algum campo do formulário
+    loginBemSucedido.value = null;
+  },
+  { deep: true },
+);
 </script>
