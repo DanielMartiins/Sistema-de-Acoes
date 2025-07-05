@@ -63,7 +63,7 @@ router.post('/login', async function (req, res) {
     var senha = req.body.senha;
 
     if (!verificaEmailValido(email)) {
-        return res.status(400).json({ message: 'Email inválido.' });
+        return res.status(400).json({ message: 'Formato de email inválido.' });
     }
 
     try {
@@ -77,7 +77,7 @@ router.post('/login', async function (req, res) {
         );
         usuario = usuario[0][0];
         if (!usuario) {
-            res.status(400).json('Dados inválidos.');
+            res.status(400).json({message: 'Dados inválidos.'});
             return;
         }
         var senhaCorreta = await bcrypt.compare(senha, usuario.senha_hash);
@@ -89,7 +89,7 @@ router.post('/login', async function (req, res) {
                 `,
                 [usuario.id],
             );
-            res.status(400).json('Dados inválidos.');
+            res.status(400).json({ message: 'Dados inválidos.'});
             return;
         } else if (senhaCorreta && usuario.numero_falhas_login > 0) {
             await db.query(
