@@ -6,18 +6,11 @@
         <h4 class="text-h4 text-center mb-4">Login</h4>
 
         <v-alert
-          v-if="loginBemSucedido === false && falhaNoServidor === false"
+          v-if="loginBemSucedido === false"
           type="error"
           class="mb-4"
-          title="Email ou senha inválidos"
+          :text="mensagemErro"
           timeout="3s"
-          style="max-width: 400px"
-        />
-        <v-alert
-          v-if="falhaNoServidor === true"
-          type="error"
-          class="mb-4"
-          title="Ocorreu um erro no servidor"
           style="max-width: 400px"
         />
 
@@ -55,7 +48,8 @@
 
             <div class="d-flex flex-column align-center">
               <v-btn
-                :disabled="!validarFormulario()"
+                :loading="processandoLogin"
+                :disabled="!validarFormulario() || loginBemSucedido === true"
                 :class="[
                   'w-100 mb-5',
                   { 'opacity-30 bg-primary': !validarFormulario() },
@@ -92,13 +86,15 @@ const form = ref({
   senha: '',
 });
 const loginBemSucedido = ref(null);
-const falhaNoServidor = ref(false);
+const processandoLogin = ref(false);
+const mensagemErro = ref('Ocorreu um erro no servidor');
 
 function validarFormulario() {
   return form.value.email.length >= 1 && form.value.senha.length >= 1;
 }
 
 function processarLogin() {
+  processandoLogin.value = true;
   axios
     .post(
       `${config.url}/usuario/login`,
@@ -113,19 +109,19 @@ function processarLogin() {
       },
     )
     .then((response) => {
-      credentials.value = response.data.token;
+      processandoLogin.value = false;
       loginBemSucedido.value = true;
-      falhaNoServidor.value = false;
+      credentials.value = response.data.token;
       setTimeout(() => {
         loginBemSucedido.value = null;
         router.push({ name: 'home' });
       }, 2000);
     })
     .catch((err) => {
-      console.log(err.response);
+      processandoLogin.value = false;
       loginBemSucedido.value = false;
-      if (!err.response || err.response.status === 500) falhaNoServidor.value = true;
-      else falhaNoServidor.value = false;
+      if (err.response) mensagemErro.value = err.response.data.message;
+      console.log(err.response);
     });
 }
 

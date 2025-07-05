@@ -8,7 +8,6 @@
           v-if="cadastroBemSucedido === false"
           type="error"
           class="mb-4"
-          title="Erro"
           :text="mensagemErro"
           style="max-width: 400px"
         />
@@ -34,6 +33,7 @@
               v-model="form.email"
               hint="Exemplo: pessoa@gmail.com"
               persistent-hint
+              :disabled="cadastroBemSucedido === true"
               :rules="[
                 () => !!form.email || 'Campo obrigatório',
                 () => (!!form.email && verificaEmailValido(form.email)) || 'Formato incompleto',
@@ -45,6 +45,7 @@
               v-model="form.senha"
               hint="Mínimo de 8 caracteres, contendo letra e número"
               persistent-hint
+              :disabled="cadastroBemSucedido === true"
               :rules="[
                 () => !!form.senha || 'Campo obrigatório',
                 () =>
@@ -57,6 +58,7 @@
               class="mb-3"
               label="Senha Repetida"
               v-model="form.senhaRepetida"
+              :disabled="cadastroBemSucedido === true"
               :rules="[
                 () => !!form.senhaRepetida || 'Campo obrigatório',
                 () => (!!form.senhaRepetida && senhasCoincidem()) || 'Senhas não coincidem',
@@ -65,7 +67,8 @@
 
             <div class="d-flex flex-column align-center">
               <v-btn
-                :disabled="!validarFormulario()"
+                :disabled="!validarFormulario() || cadastroBemSucedido === true"
+                :loading="processandoCadastro"
                 :class="[
                   'w-100 mb-5',
                   { 'opacity-30 bg-primary': !validarFormulario() },
@@ -97,7 +100,8 @@ const { appContext } = getCurrentInstance();
 const config = appContext.config.globalProperties.config;
 
 const cadastroBemSucedido = ref(null);
-const mensagemErro = ref('');
+const mensagemErro = ref('Ocorreu um erro no servidor.');
+const processandoCadastro= ref(false);
 
 const form = ref({
   email: '',
@@ -106,6 +110,7 @@ const form = ref({
 });
 
 function processarCadastro() {
+  processandoCadastro.value = true;
   axios
     .post(
       `${config.url}/usuario/criarConta`,
@@ -121,12 +126,14 @@ function processarCadastro() {
       },
     )
     .then((response) => {
+      processandoCadastro.value = false;
       cadastroBemSucedido.value = true;
       console.log(response.data.message);
     })
     .catch((err) => {
+      processandoCadastro.value = false;
       console.log(err.response);
-      mensagemErro.value = err.response.data.message;
+      if (err.response && err.response.data.message) mensagemErro.value = err.response.data.message;
       cadastroBemSucedido.value = false;
     });
 }
