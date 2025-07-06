@@ -39,7 +39,7 @@
               :disabled="loginBemSucedido === true"
             ></v-text-field>
 
-            <v-card-text class="d-flex">
+            <div class="d-flex">
               <router-link
                 class="ml-auto text-decoration-none text-body-2"
                 href
@@ -47,7 +47,7 @@
               >
                 Esqueci minha senha(NÃO IMPLEMENTADO!!!)
               </router-link>
-            </v-card-text>
+            </div>
             <v-text-field
               label="Senha"
               v-model="form.senha"
