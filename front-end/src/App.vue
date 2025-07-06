@@ -1,18 +1,23 @@
 <template>
   <v-app>
     <v-main>
-      <router-view/>
+      <router-view />
     </v-main>
   </v-app>
 </template>
 
-<script>
+<script setup>
+import { watchEffect } from 'vue';
+import { useAuth } from './composables/useAuth';
+import { useRouter } from 'vue-router';
 
-export default {
-  name: 'App',
+const router = useRouter();
+const { logout, token, isTokenExpired } = useAuth();
 
-  data: () => ({
-    //
-  }),
-}
+watchEffect(() => {
+  if (token.value && isTokenExpired.value) {
+    logout();
+    router.push({name: 'pagina-inicial'})
+  }
+});
 </script>

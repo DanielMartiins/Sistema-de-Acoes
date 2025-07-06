@@ -12,6 +12,16 @@ const user = computed(() => {
   }
 });
 
+const isTokenExpired = computed(() => {
+  if (!token.value) return true;
+  try {
+    const dateNow = Date.now();
+    return dateNow > token.value.exp;
+  } catch (e) {
+    return true;
+  }
+})
+
 function setToken(novoToken) {
   token.value = novoToken;
   localStorage.setItem('token', novoToken);
@@ -27,6 +37,7 @@ export function useAuth() {
     user,
     logout,
     token,
-    setToken
+    setToken,
+    isTokenExpired,
   };
 }
