@@ -8,9 +8,4 @@ import { ref } from 'vue'
 loadFonts();
 const app = createApp(App);
 
-app.config.globalProperties.credentials = ref(null);
-app.config.globalProperties.config = {
-    url: 'http://localhost:3000' //URL do Back-end
-};
-
 app.use(router).use(vuetify).mount('#app');
