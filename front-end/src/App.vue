@@ -15,9 +15,11 @@ const router = useRouter();
 const { logout, token, isTokenExpired } = useAuth();
 
 watchEffect(() => {
+
+  //Se usuário está logado mas seu token expirou, deslogar
   if (token.value && isTokenExpired.value) {
     logout();
-    router.push({name: 'pagina-inicial'})
+    router.push({name: 'login'})
   }
 });
 </script>
