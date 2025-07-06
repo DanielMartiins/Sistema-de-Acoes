@@ -1,35 +1,29 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import PaginaInicial from '../components/PaginaInicial.vue';
+import PaginaInicial from '@/views/PaginaInicial.vue';
+import CriacaoConta from '@/views/usuario/cadastro/CriacaoConta.vue';
+import FormLogin from '@/views/usuario/login/FormLogin.vue';
 
 const routes = [
-    {
-        path: '/',
-        name: 'home',
-        component: PaginaInicial,
-    },
-    {
-        path: '/about',
-        name: 'about',
-        // route level code-splitting
-        // this generates a separate chunk (about.[hash].js) for this route
-        // which is lazy-loaded when the route is visited.
-        component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue'),
-    },
-    {
-        path: '/login',
-        name: 'login',
-        component: () => import('../components/usuario/login/FormLogin.vue'),
-    },
-        {
-        path: '/cadastro',
-        name: 'cadastro',
-        component: () => import('../components/usuario/cadastro/CriacaoConta.vue'),
-    },
+  {
+    path: '/',
+    name: 'pagina-inicial',
+    component: PaginaInicial,
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: FormLogin,
+  },
+  {
+    path: '/cadastro',
+    name: 'cadastro',
+    component: CriacaoConta,
+  },
 ];
 
 const router = createRouter({
-    history: createWebHistory(process.env.BASE_URL),
-    routes,
+  history: createWebHistory(process.env.BASE_URL),
+  routes,
 });
 
 export default router;
