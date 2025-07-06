@@ -2,7 +2,7 @@
   <v-layout>
     <v-navigation-drawer expand-on-hover rail permanent>
       <v-list>
-        <v-list-item prepend-icon="mdi-account" subtitle="fulanociclano@gmail.com"></v-list-item>
+        <v-list-item prepend-icon="mdi-account" :subtitle="useAuth().user.value.email"></v-list-item>
       </v-list>
 
       <v-divider />
@@ -19,3 +19,7 @@
     </v-navigation-drawer>
   </v-layout>
 </template>
+
+<script setup>
+  import { useAuth } from '@/composables/useAuth';
+</script>
