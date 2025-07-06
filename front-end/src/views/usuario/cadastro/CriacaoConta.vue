@@ -93,11 +93,9 @@
 
 <script setup>
 import { watch } from 'vue';
-import { ref, getCurrentInstance } from 'vue';
+import { ref } from 'vue';
 import axios from 'axios';
-
-const { appContext } = getCurrentInstance();
-const config = appContext.config.globalProperties.config;
+import { config } from '@/config';
 
 const cadastroBemSucedido = ref(null);
 const mensagemErro = ref('Ocorreu um erro no servidor.');
@@ -113,7 +111,7 @@ function processarCadastro() {
   processandoCadastro.value = true;
   axios
     .post(
-      `${config.url}/usuario/criarConta`,
+      `${config.apiUrl}/usuario/criarConta`,
       {
         email: form.value.email,
         senha: form.value.senha,
