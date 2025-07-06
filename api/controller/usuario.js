@@ -77,7 +77,7 @@ router.post('/login', async function (req, res) {
         );
         usuario = usuario[0][0];
         if (!usuario) {
-            res.status(400).json({message: 'Dados inválidos.'});
+            res.status(400).json({message: 'Email ou senha incorretos.'});
             return;
         }
         var senhaCorreta = await bcrypt.compare(senha, usuario.senha_hash);
@@ -89,7 +89,7 @@ router.post('/login', async function (req, res) {
                 `,
                 [usuario.id],
             );
-            res.status(400).json({ message: 'Dados inválidos.'});
+            res.status(400).json({ message: 'Email ou senha incorretos.'});
             return;
         } else if (senhaCorreta && usuario.numero_falhas_login > 0) {
             await db.query(
