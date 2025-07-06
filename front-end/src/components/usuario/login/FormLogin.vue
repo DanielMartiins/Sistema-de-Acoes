@@ -79,6 +79,7 @@
 </template>
 
 <script setup>
+import { config } from '@/config'
 import { useRouter } from 'vue-router';
 import { watch } from 'vue';
 import { ref, getCurrentInstance } from 'vue';
@@ -86,8 +87,6 @@ import axios from 'axios';
 
 const router = useRouter();
 const { appContext } = getCurrentInstance();
-const credentials = appContext.config.globalProperties.credentials;
-const config = appContext.config.globalProperties.config;
 
 const form = ref({
   email: '',
@@ -105,7 +104,7 @@ function processarLogin() {
   processandoLogin.value = true;
   axios
     .post(
-      `${config.url}/usuario/login`,
+      `${config.apiUrl}/usuario/login`,
       {
         email: form.value.email,
         senha: form.value.senha,
@@ -119,7 +118,7 @@ function processarLogin() {
     .then((response) => {
       processandoLogin.value = false;
       loginBemSucedido.value = true;
-      credentials.value = response.data.token;
+      localStorage.setItem('token', response.data.token);
       setTimeout(() => {
         loginBemSucedido.value = null;
         router.push({ name: 'home' });
