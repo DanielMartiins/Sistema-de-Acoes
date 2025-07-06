@@ -79,7 +79,7 @@
 </template>
 
 <script setup>
-import { config } from '@/config'
+import { config } from '@/config';
 import { useRouter } from 'vue-router';
 import { watch } from 'vue';
 import { ref, getCurrentInstance } from 'vue';
@@ -87,7 +87,6 @@ import axios from 'axios';
 import { useAuth } from '@/composables/useAuth';
 
 const router = useRouter();
-const { appContext } = getCurrentInstance();
 
 const form = ref({
   email: '',
