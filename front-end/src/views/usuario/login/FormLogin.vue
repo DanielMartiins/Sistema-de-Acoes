@@ -121,7 +121,7 @@ function processarLogin() {
       localStorage.setItem('token', response.data.token);
       setTimeout(() => {
         loginBemSucedido.value = null;
-        router.push({ name: 'home' });
+        router.push({ name: 'pagina-inicial' });
       }, 2000);
     })
     .catch((err) => {
