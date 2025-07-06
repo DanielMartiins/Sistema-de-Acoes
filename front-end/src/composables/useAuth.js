@@ -12,6 +12,11 @@ const user = computed(() => {
   }
 });
 
+function setToken(novoToken) {
+  token.value = novoToken;
+  localStorage.setItem('token', novoToken);
+}
+
 function logout() {
   token.value = null;
   localStorage.removeItem('token');
@@ -19,8 +24,9 @@ function logout() {
 
 export function useAuth() {
   return {
-    token,
     user,
     logout,
+    token,
+    setToken
   };
 }

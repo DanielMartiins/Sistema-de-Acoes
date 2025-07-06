@@ -84,6 +84,7 @@ import { useRouter } from 'vue-router';
 import { watch } from 'vue';
 import { ref, getCurrentInstance } from 'vue';
 import axios from 'axios';
+import { useAuth } from '@/composables/useAuth';
 
 const router = useRouter();
 const { appContext } = getCurrentInstance();
@@ -118,7 +119,8 @@ function processarLogin() {
     .then((response) => {
       processandoLogin.value = false;
       loginBemSucedido.value = true;
-      localStorage.setItem('token', response.data.token);
+      const { setToken } = useAuth();
+      setToken(response.data.token);
       setTimeout(() => {
         loginBemSucedido.value = null;
         router.push({ name: 'pagina-inicial' });
