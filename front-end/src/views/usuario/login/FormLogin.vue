@@ -3,7 +3,14 @@
     <!-- WRAPPER para centralizar -->
     <div class="d-flex flex-column justify-center align-center" style="height: 100vh">
       <div>
-        <h4 class="text-h4 text-center mb-4">Login</h4>
+        <div class="text-button text-center">
+          <v-btn @click="router.push({ name: 'pagina-inicial' })">
+            <v-icon>mdi-home</v-icon>
+            Página inicial
+          </v-btn>
+        </div>
+
+        <h4 class="text-h4 text-center mt-3 mb-2">Login</h4>
 
         <v-alert
           v-if="loginBemSucedido === false"
@@ -36,22 +43,29 @@
             <v-text-field
               label="Email"
               v-model="form.email"
+              :rules="[
+                () => form.email.length > 0 || 'Campo obrigatório'
+              ]"
               :disabled="loginBemSucedido === true"
             ></v-text-field>
 
-            <div class="d-flex">
+            <div class="d-flex justify-end mb-1">
               <router-link
-                class="ml-auto text-decoration-none text-body-2"
+                class="text-decoration-none text-primary text-caption hover-link"
                 href
                 :to="{ name: 'cadastro' }"
               >
-                Esqueci minha senha(NÃO IMPLEMENTADO!!!)
+                Esqueci minha senha
               </router-link>
             </div>
             <v-text-field
+              class="mb-4"
               label="Senha"
               v-model="form.senha"
               :disabled="loginBemSucedido === true"
+              :rules="[
+                () => form.senha.length > 0 || 'Campo obrigatório'
+              ]"
             ></v-text-field>
 
             <div class="d-flex flex-column align-center">
@@ -59,16 +73,22 @@
                 :loading="processandoLogin"
                 :disabled="!validarFormulario() || loginBemSucedido === true"
                 :class="[
-                  'w-100 mb-5',
-                  { 'opacity-30 bg-primary': !validarFormulario() },
+                  'w-100 mb-2',
+                  { 'opacity-50 text-grey-lighten': !validarFormulario() },
                   { 'opacity-100 bg-primary': validarFormulario() },
                 ]"
-                @click="processarLogin"
+                @click="processarLogin()"
               >
                 Entrar
               </v-btn>
               <v-card-text>
-                <router-link href :to="{ name: 'cadastro' }"> Criar nova conta </router-link>
+                <router-link
+                  class="text-primary text-button text-decoration-none hover-link"
+                  href
+                  :to="{ name: 'cadastro' }"
+                >
+                  Não tenho conta
+                </router-link>
               </v-card-text>
             </div>
           </v-form>
@@ -142,3 +162,9 @@ watch(
   { deep: true },
 );
 </script>
+
+<style scoped>
+.hover-link:hover {
+  filter: brightness(1.25);
+}
+</style>
