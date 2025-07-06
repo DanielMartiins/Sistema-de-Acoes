@@ -3,12 +3,7 @@
     <!-- WRAPPER para centralizar -->
     <div class="d-flex flex-column justify-center align-center" style="height: 100vh">
       <div>
-        <div class="text-button text-center">
-          <v-btn @click="router.push({ name: 'pagina-inicial' })">
-            <v-icon>mdi-home</v-icon>
-            Página inicial
-          </v-btn>
-        </div>
+        <BotaoHome />
         <h4 class="text-h4 text-center mt-3 mb-2">Criar Conta</h4>
         <v-alert
           v-if="cadastroBemSucedido === false"
@@ -77,7 +72,7 @@
                 :loading="processandoCadastro"
                 :class="[
                   'w-100 mb-2',
-                  { 'opacity-50 text-grey-lighten': !validarFormulario() },
+                  { 'opacity-30 text-grey-lighten': !validarFormulario() },
                   { 'opacity-100 bg-primary': validarFormulario() },
                 ]"
                 @click="processarCadastro()"
@@ -107,11 +102,11 @@ import { ref } from 'vue';
 import axios from 'axios';
 import { config } from '@/config';
 import { useRouter } from 'vue-router';
+import BotaoHome from '@/components/BotaoHome.vue';
 
 const cadastroBemSucedido = ref(null);
 const mensagemErro = ref('Ocorreu um erro no servidor.');
 const processandoCadastro = ref(false);
-const router = useRouter();
 
 const form = ref({
   email: '',
