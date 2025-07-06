@@ -1,6 +1,6 @@
 <template>
   <v-layout>
-    <v-navigation-drawer expand-on-hover rail permanent>
+    <v-navigation-drawer class="bg-secundary" expand-on-hover rail permanent>
       <v-expansion-panels elevation="0" class="mt-2 mb-2">
         <v-expansion-panel>
           <v-expansion-panel-title class="pa-0">
@@ -17,7 +17,12 @@
           </v-expansion-panel-title>
           <v-expansion-panel-text class="pa-0">
             <v-list density="compact" nav class="pa-0">
-              <v-list-item @click="handleLogout" title="Sair" prepend-icon="mdi-logout" value="logout"></v-list-item>
+              <v-list-item
+                @click="handleLogout"
+                title="Sair"
+                prepend-icon="mdi-logout"
+                value="logout"
+              ></v-list-item>
             </v-list>
           </v-expansion-panel-text>
         </v-expansion-panel>
@@ -27,9 +32,16 @@
 
       <v-list density="compact" nav>
         <v-list-item
+          prepend-icon="mdi-home"
+          title="Página inicial"
+          value="paginainicial"
+          @click="router.push({name: 'pagina-inicial'})"
+        ></v-list-item>
+        <v-list-item
           prepend-icon="mdi-wallet-bifold"
           title="Minha carteira"
           value="minhacarteira"
+          @click="router.push({name: 'pagina-inicial'})"
         ></v-list-item>
       </v-list>
     </v-navigation-drawer>
@@ -39,12 +51,13 @@
 <script setup>
 import { useAuth } from '@/composables/useAuth';
 import { useRouter } from 'vue-router';
+import BotaoHome from './BotaoHome.vue';
 
 const { user, logout } = useAuth();
 const router = useRouter();
 
 function handleLogout() {
   logout();
-  router.push({name: 'login'})
+  router.push({ name: 'login' });
 }
 </script>
