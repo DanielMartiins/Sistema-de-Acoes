@@ -3,7 +3,11 @@
     <!-- WRAPPER para centralizar -->
     <div class="d-flex flex-column justify-center align-center" style="height: 100vh">
       <div>
-        <BotaoHome />
+
+        <div class="text-align text-center">
+          <BotaoHome class="bg-secondary" />
+        </div>
+        
         <h4 class="text-h4 text-center mt-3 mb-2">Criar Conta</h4>
         <v-alert
           v-if="cadastroBemSucedido === false"

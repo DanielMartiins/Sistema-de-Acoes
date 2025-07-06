@@ -1,10 +1,8 @@
 <template>
-  <div class="text-button text-center">
-    <v-btn class="bg-secondary" @click="router.push({ name: 'pagina-inicial' })">
-      <v-icon>mdi-home</v-icon>
-      Página inicial
-    </v-btn>
-  </div>
+  <v-btn @click="router.push({ name: 'pagina-inicial' })">
+    <v-icon>mdi-home</v-icon>
+    Página inicial
+  </v-btn>
 </template>
 
 <script setup>

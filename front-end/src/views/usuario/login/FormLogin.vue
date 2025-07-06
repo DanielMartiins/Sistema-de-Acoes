@@ -3,8 +3,10 @@
     <!-- WRAPPER para centralizar -->
     <div class="d-flex flex-column justify-center align-center" style="height: 100vh">
       <div>
-
-        <BotaoHome />
+        
+        <div class="text-align text-center">
+          <BotaoHome class="bg-secondary" />
+        </div>
 
         <h4 class="text-h4 text-center mt-3 mb-2">Login</h4>
 
@@ -39,9 +41,7 @@
             <v-text-field
               label="Email"
               v-model="form.email"
-              :rules="[
-                () => form.email.length > 0 || 'Campo obrigatório'
-              ]"
+              :rules="[() => form.email.length > 0 || 'Campo obrigatório']"
               :disabled="loginBemSucedido === true"
             ></v-text-field>
 
@@ -59,9 +59,7 @@
               label="Senha"
               v-model="form.senha"
               :disabled="loginBemSucedido === true"
-              :rules="[
-                () => form.senha.length > 0 || 'Campo obrigatório'
-              ]"
+              :rules="[() => form.senha.length > 0 || 'Campo obrigatório']"
             ></v-text-field>
 
             <div class="d-flex flex-column align-center">
