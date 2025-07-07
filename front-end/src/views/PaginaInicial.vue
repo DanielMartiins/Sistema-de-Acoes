@@ -1,65 +1,36 @@
 <template>
   <NavegadorSidebar />
-  <div class="d-flex justify-center" style="height: 100vh; padding-top: 2rem; padding-bottom: 2rem">
-    <v-container class="pa-4" style="max-width: 720px">
-      <v-row class="bg-primary">
-        <v-col>Ticker</v-col>
-        <v-col class="text-end">Preço</v-col>
-        <v-col class="text-end">Variação $</v-col>
-        <v-col class="text-end">Variação %</v-col>
-      </v-row>
+  <div class="tabela-wrapper">
+    <v-container class="pa-0 tabela-container">
+      <div class="tabela-box">
+        <!-- Cabeçalho fixo -->
+        <v-row class="bg-primary font-weight-bold" no-gutters>
+          <v-col cols="2">Ticker</v-col>
+          <v-col cols="2" class="text-end">Preço</v-col>
+          <v-col class="text-end">Variação $</v-col>
+          <v-col class="text-end">Variação %</v-col>
+          <v-col cols="2" class="text-center"></v-col>
+        </v-row>
 
-      <v-row
-        v-for="(acao, index) in acoes"
-        :key="index"
-        :class="index % 2 !== 0 ? 'bg-secondary-lighten' : 'bg-secondary'"
-      >
-        <v-col>{{ acao.ticker }}</v-col>
-        <v-divider vertical />
-
-        <v-col class="text-end">{{ acao.preco.toFixed(2) }}</v-col>
-        <v-divider vertical />
-
-        <v-col class="text-end" :class="classeVariacao(acao.variacaoNominal)">
-          <v-icon v-if="acao.variacaoNominal !== 0" size="small">
-            {{ iconeVariacao(acao.variacaoNominal) }}
-          </v-icon>
-          <span class="numero-fixo-largura">{{ acao.variacaoNominal.toFixed(2) }}</span>
-        </v-col>
-        <v-divider vertical />
-
-        <v-col class="text-end" :class="classeVariacao(acao.variacaoPercentual)">
-          <v-icon v-if="acao.variacaoPercentual !== 0" size="small">
-            {{ iconeVariacao(acao.variacaoPercentual) }}
-          </v-icon>
-          <span class="numero-fixo-largura">{{ acao.variacaoPercentual.toFixed(2) }}%</span>
-        </v-col>
-      </v-row>
+        <!-- Parte rolável -->
+        <div class="scroll-tabela d-flex flex-column">
+          <LinhaAcao v-for="(acao, i) in acoes" :key="i" :acao="acao" :index="i" />
+        </div>
+      </div>
     </v-container>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import NavegadorSidebar from '@/components/NavegadorSidebar.vue';
+import LinhaAcao from '@/components/LinhaAcao.vue';
 import axios from 'axios';
 import { config } from '@/config';
 
 const acoes = ref([]);
 
-function classeVariacao(valor) {
-  if (valor > 0) return 'text-success';
-  if (valor < 0) return 'text-error';
-  return '';
-}
-
-function iconeVariacao(valor) {
-  if (valor > 0) return 'mdi-arrow-up';
-  if (valor < 0) return 'mdi-arrow-down';
-  return '';
-}
-
-async function listarAcoesInteresse() {
+async function buscarAcoesInteresse() {
   try {
     const response = await axios.get(`${config.apiUrl}/acoes/acaoInteresse`, {
       headers: {
@@ -68,27 +39,38 @@ async function listarAcoesInteresse() {
     });
     return response.data;
   } catch (err) {
-    console.log(err);
-    return null;
+    console.error(err);
+    return [];
   }
 }
 
-listarAcoesInteresse().then((listaAcoes) => {
-  acoes.value = listaAcoes;
-  console.log(acoes.value);
+onMounted(async () => {
+  acoes.value = await buscarAcoesInteresse();
 });
 </script>
 
 <style scoped>
-.bg-secondary-lighten {
-  background-color: #252525; /* versão mais clara do bg-secondary */
+.tabela-wrapper {
+  height: 75vh;
+  padding: 2rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.numero-fixo-largura {
-  display: inline-block;
-  width: 50%;
-  min-width: 45px;
-  max-width: 70px;
-  text-align: right;
+.tabela-container {
+  width: 100%;
+  max-width: 1080px;
+}
+
+.tabela-box {
+  border: 2px solid #555;
+  height: 260px;
+  overflow: hidden;
+}
+
+.scroll-tabela {
+  max-height: 232px;
+  overflow-y: auto;
 }
 </style>
