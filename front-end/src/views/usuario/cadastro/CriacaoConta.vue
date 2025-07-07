@@ -16,19 +16,21 @@
       />
     </div>
 
-    <v-alert
-      v-if="cadastroBemSucedido === true"
-      type="success"
-      class="mb-2"
-      style="max-width: 400px"
-    >
-      <div class="d-flex justify-space-between align-center">
-        Conta criada com sucesso!
-        <router-link class="link" href :to="{ name: 'login' }">
-          <v-btn class="bg-secondary">Entrar</v-btn>
-        </router-link>
-      </div>
-    </v-alert>
+    <div>
+      <v-alert
+        v-if="cadastroBemSucedido !== true"
+        type="success"
+        class="mb-2"
+        style="width: 400px"
+      >
+        <div class="d-flex justify-space-between align-center">
+          Conta criada com sucesso!
+          <router-link class="link" href :to="{ name: 'login' }">
+            <v-btn class="bg-secondary ml-2">Entrar</v-btn>
+          </router-link>
+        </div>
+      </v-alert>
+    </div>
 
     <v-container class="rounded-lg bg-secondary" :width="400">
       <v-form>
