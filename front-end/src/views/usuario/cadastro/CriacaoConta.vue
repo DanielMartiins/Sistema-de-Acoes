@@ -18,7 +18,7 @@
 
     <div>
       <v-alert
-        v-if="cadastroBemSucedido !== true"
+        v-if="cadastroBemSucedido === true"
         type="success"
         class="mb-2"
         style="width: 400px"
