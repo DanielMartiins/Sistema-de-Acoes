@@ -1,95 +1,85 @@
 <template>
-  <v-app>
-    <!-- WRAPPER para centralizar -->
-    <div class="d-flex flex-column justify-center align-center" style="height: 100vh">
-      <div>
-        
-        <div class="text-align text-center">
-          <BotaoHome class="bg-secondary" />
-        </div>
-
-        <h4 class="text-h4 text-center mt-3 mb-2">Login</h4>
-
-        <v-alert
-          v-if="loginBemSucedido === false"
-          type="error"
-          class="mb-4"
-          :text="mensagemErro"
-          timeout="3s"
-          style="max-width: 400px"
-        />
-
-        <v-alert
-          v-if="loginBemSucedido === true"
-          type="success"
-          class="mb-4"
-          style="max-width: 400px"
-        >
-          <div class="d-flex justify-space-between align-center">
-            Login realizado com sucesso
-            <v-progress-circular
-              color="primary"
-              indeterminate="disable-shrink"
-              size="16"
-              width="2"
-            ></v-progress-circular>
-          </div>
-        </v-alert>
-
-        <v-container class="rounded-lg bg-secondary" :width="400">
-          <v-form>
-            <v-text-field
-              label="Email"
-              v-model="form.email"
-              :rules="[() => form.email.length > 0 || 'Campo obrigatório']"
-              :disabled="loginBemSucedido === true"
-            ></v-text-field>
-
-            <div class="d-flex justify-end mb-1">
-              <router-link
-                class="text-decoration-none text-primary text-caption hover-link"
-                href
-                :to="{ name: 'cadastro' }"
-              >
-                Esqueci minha senha
-              </router-link>
-            </div>
-            <v-text-field
-              class="mb-4"
-              label="Senha"
-              v-model="form.senha"
-              :disabled="loginBemSucedido === true"
-              :rules="[() => form.senha.length > 0 || 'Campo obrigatório']"
-            ></v-text-field>
-
-            <div class="d-flex flex-column align-center">
-              <v-btn
-                :loading="processandoLogin"
-                :disabled="!validarFormulario() || loginBemSucedido === true"
-                :class="[
-                  'w-100 mb-2',
-                  { 'opacity-30 text-grey-lighten': !validarFormulario() },
-                  { 'opacity-100 bg-primary': validarFormulario() },
-                ]"
-                @click="processarLogin()"
-              >
-                Entrar
-              </v-btn>
-              <v-card-text>
-                <router-link
-                  class="text-primary text-button text-decoration-none hover-link"
-                  href
-                  :to="{ name: 'cadastro' }"
-                >
-                  Não tenho conta
-                </router-link>
-              </v-card-text>
-            </div>
-          </v-form>
-        </v-container>
-      </div>
+  <!-- WRAPPER para centralizar -->
+  <div class="d-flex flex-column justify-center align-center" style="height: 100vh">
+    <div class="text-align text-center">
+      <BotaoHome class="bg-secondary" />
     </div>
-  </v-app>
+
+    <h4 class="text-h4 text-center mt-3 mb-2">Login</h4>
+
+    <v-alert
+      v-if="loginBemSucedido === false"
+      type="error"
+      class="mb-4"
+      :text="mensagemErro"
+      timeout="3s"
+      style="max-width: 400px"
+    />
+
+    <v-alert v-if="loginBemSucedido === true" type="success" class="mb-4" style="max-width: 400px">
+      <div class="d-flex justify-space-between align-center">
+        Login realizado com sucesso
+        <v-progress-circular
+          color="primary"
+          indeterminate="disable-shrink"
+          size="16"
+          width="2"
+        ></v-progress-circular>
+      </div>
+    </v-alert>
+
+    <v-container class="rounded-lg bg-secondary" :width="400">
+      <v-form>
+        <v-text-field
+          label="Email"
+          v-model="form.email"
+          :rules="[() => form.email.length > 0 || 'Campo obrigatório']"
+          :disabled="loginBemSucedido === true"
+        ></v-text-field>
+
+        <div class="d-flex justify-end mb-1">
+          <router-link
+            class="text-decoration-none text-primary text-caption hover-link"
+            href
+            :to="{ name: 'cadastro' }"
+          >
+            Esqueci minha senha
+          </router-link>
+        </div>
+        <v-text-field
+          class="mb-4"
+          label="Senha"
+          v-model="form.senha"
+          :disabled="loginBemSucedido === true"
+          :rules="[() => form.senha.length > 0 || 'Campo obrigatório']"
+        ></v-text-field>
+
+        <div class="d-flex flex-column align-center">
+          <v-btn
+            :loading="processandoLogin"
+            :disabled="!validarFormulario() || loginBemSucedido === true"
+            :class="[
+              'w-100 mb-2',
+              { 'opacity-30 text-grey-lighten': !validarFormulario() },
+              { 'opacity-100 bg-primary': validarFormulario() },
+            ]"
+            @click="processarLogin()"
+          >
+            Entrar
+          </v-btn>
+          <v-card-text>
+            <router-link
+              class="text-primary text-button text-decoration-none hover-link"
+              href
+              :to="{ name: 'cadastro' }"
+            >
+              Não tenho conta
+            </router-link>
+          </v-card-text>
+        </div>
+      </v-form>
+    </v-container>
+  </div>
 </template>
 
 <script setup>
