@@ -355,5 +355,6 @@ async function gerarAçõesInteresse(idUsuario) {
             ordem++;
         }
     }
+    await db.end();
 }
 module.exports = router;

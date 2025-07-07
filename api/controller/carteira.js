@@ -21,17 +21,19 @@ router.get('/', async function (req, res) {
         //Pegar ações da carteira, na tabela acao_carteira do banco de dados
         const [consulta] = await db.query(
             `
-            SELECT 
-                ticker, 
-                preco_compra as precoCompra, 
+            SELECT
+                ticker,
+                preco_compra as precoCompra,
                 preco_venda as precoVenda,
-                qtde, 
+                qtde,
                 qtde_vendida as qtdeVendida
             FROM acao_carteira
             WHERE fk_usuario_id = ?
             `,
             [idUsuario]
-        ); 
+        );
+        
+        await db.end();
 
         const minutoNegociacao = await obterMinutoNegociacaoUsuario(idUsuario);
         const acoesCarteira = await Promise.all(
@@ -39,6 +41,7 @@ router.get('/', async function (req, res) {
                 montarResultadoFinanceiro(acaoCarteira, minutoNegociacao)
             )
         );
+
         res.json(acoesCarteira);
     } catch (err) {
         console.error(err);

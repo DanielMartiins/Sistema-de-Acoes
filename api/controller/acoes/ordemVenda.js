@@ -34,13 +34,14 @@ router.get('/', async function (req, res) {
                 executada = 1,
                 DATE_FORMAT(data_hora_execucao, '%d-%m-%Y %H:%i:%s'),
                 null
-            ) AS dataHoraExecucao                 
-        FROM ordem_venda 
+            ) AS dataHoraExecucao
+        FROM ordem_venda
         WHERE fk_usuario_id = ?;
         `,
         [idUsuario]
     );
 
+    await db.end();
     res.json(listaOrdensVenda);
 });
 
@@ -167,6 +168,7 @@ async function registrarOrdemVenda(idUsuario, ticker, modo, quantidade, precoRef
         [idUsuario, ticker, modo, quantidade, precoReferencia]
     );
 
+    await db.end();
     const idOrdemVenda = insercaoOrdemVenda[0][0].insertId;
     return idOrdemVenda;
 }
