@@ -6,17 +6,20 @@
     </div>
 
     <h4 class="text-h4 text-center mt-3 mb-2">Criar Conta</h4>
-    <v-alert
-      v-if="cadastroBemSucedido === false"
-      type="error"
-      class="mb-4"
-      :text="mensagemErro"
-      style="max-width: 400px"
-    />
+
+    <div>
+      <MensagemErro
+        class="mb-2"
+        :width="400"
+        :mensagem="mensagemErro"
+        :show="cadastroBemSucedido === false"
+      />
+    </div>
+
     <v-alert
       v-if="cadastroBemSucedido === true"
       type="success"
-      class="mb-4"
+      class="mb-2"
       style="max-width: 400px"
     >
       <div class="d-flex justify-space-between align-center">
@@ -102,6 +105,7 @@ import axios from 'axios';
 import { config } from '@/config';
 import { useRouter } from 'vue-router';
 import BotaoHome from '@/components/BotaoHome.vue';
+import MensagemErro from '@/components/MensagemErro.vue';
 
 const cadastroBemSucedido = ref(null);
 const mensagemErro = ref('Ocorreu um erro no servidor.');

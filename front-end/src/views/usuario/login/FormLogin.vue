@@ -7,26 +7,24 @@
 
     <h4 class="text-h4 text-center mt-3 mb-2">Login</h4>
 
-    <v-alert
-      v-if="loginBemSucedido === false"
-      type="error"
-      class="mb-4"
-      :text="mensagemErro"
-      timeout="3s"
-      style="max-width: 400px"
-    />
+    <div>
+      <MensagemErro
+        class="mb-2"
+        :width="400"
+        :mensagem="mensagemErro"
+        :show="loginBemSucedido === false"
+      />
+    </div>
 
-    <v-alert v-if="loginBemSucedido === true" type="success" class="mb-4" style="max-width: 400px">
-      <div class="d-flex justify-space-between align-center">
-        Login realizado com sucesso
-        <v-progress-circular
-          color="primary"
-          indeterminate="disable-shrink"
-          size="16"
-          width="2"
-        ></v-progress-circular>
-      </div>
-    </v-alert>
+    <div>
+      <MensagemSucesso
+        class="mb-2"
+        :width="400"
+        mensagem="Login bem sucedido!"
+        :show="loginBemSucedido === true"
+        :loading="true"
+      />
+    </div>
 
     <v-container class="rounded-lg bg-secondary" :width="400">
       <v-form>
@@ -90,6 +88,8 @@ import { ref, getCurrentInstance } from 'vue';
 import axios from 'axios';
 import { useAuth } from '@/composables/useAuth';
 import BotaoHome from '@/components/BotaoHome.vue';
+import MensagemErro from '@/components/MensagemErro.vue';
+import MensagemSucesso from '@/components/MensagemSucesso.vue';
 
 const router = useRouter();
 
