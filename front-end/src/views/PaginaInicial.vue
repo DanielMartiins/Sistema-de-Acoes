@@ -14,7 +14,7 @@
 
         <!-- Parte rolável -->
         <div class="scroll-tabela d-flex flex-column">
-          <LinhaAcao v-for="(acao, i) in acoes" :key="i" :acao="acao" :index="i" />
+          <LinhaAcaoInteresse v-for="(acao, i) in acoes" :key="i" :acao="acao" :index="i" />
         </div>
       </div>
     </v-container>
@@ -24,7 +24,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import NavegadorSidebar from '@/components/NavegadorSidebar.vue';
-import LinhaAcao from '@/components/LinhaAcao.vue';
+import LinhaAcaoInteresse from '@/components/LinhaAcaoInteresse.vue';
 import axios from 'axios';
 import { config } from '@/config';
 
