@@ -23,3 +23,9 @@ watchEffect(() => {
   }
 });
 </script>
+
+<style>
+  .v-overlay__scrim {
+    background-color: rgba(0,0,0) !important;
+  }
+</style>
