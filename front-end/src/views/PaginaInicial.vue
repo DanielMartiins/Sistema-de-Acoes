@@ -21,10 +21,14 @@
     </v-card>
   </v-dialog>
 
+  <!--Conteúdo principal da página-->
   <div class="tabela-wrapper">
     <v-container class="pa-0 tabela-container">
       <h2 class="text-h2 text-center ma-2">Mercado de Ações</h2>
-      <h4 class="text-h4 text-center ma-2"><v-icon size="30px">mdi-clock-outline</v-icon>14:00</h4>
+      <h4 class="text-h4 text-center ma-2">
+        <v-icon size="30px">mdi-clock-outline</v-icon
+        >{{ `14:${String(minutoNegociacao).padStart(2, '0')}` }}
+      </h4>
       <div class="tabela-box">
         <!-- Cabeçalho fixo -->
         <v-row class="bg-primary font-weight-bold pa-2 pt-1 pb-1" no-gutters>
@@ -123,8 +127,13 @@
       </v-dialog>
       <div>
         <span></span>
-        <v-btn @click="abrirDialogoAdicao" class="mt-5 mr-1 bg-secondary-lighten-2"> +1 Min </v-btn>
-        <v-btn @click="abrirDialogoAdicao" class="mt-5 ml-1 bg-secondary-lighten-2"> +5 Min </v-btn>
+        <v-btn
+          text="+1 Min"
+          :disabled="minutoNegociacao + 1 >= 60"
+          @click="avancarRelogio(1)"
+          class="mt-5 mr-1 bg-secondary-lighten-2"
+        />
+        <v-btn text="+5 Min" :disabled="minutoNegociacao + 5 >= 60" @click="avancarRelogio(5)" class="mt-5 ml-1 bg-secondary-lighten-2" />
       </div>
     </div>
   </div>
@@ -137,12 +146,14 @@ import LinhaAcaoInteresse from '@/components/LinhaAcaoInteresse.vue';
 import axios from 'axios';
 import { config } from '@/config';
 
+const carregando = ref(false);
 const acoesInteresse = ref([]);
 const acoesMercado = ref([]);
 const dialogoRemocao = ref(false);
 const dialogoAdicao = ref(false);
 const tickerParaRemover = ref('');
 const indexParaRemover = ref('');
+const minutoNegociacao = ref(0);
 
 async function removerAcao() {
   try {
@@ -221,8 +232,49 @@ async function adicionarAcaoInteresse(ticker) {
   }
 }
 
+async function obterMinutoNegociacao() {
+  const response = await axios.get(`${config.apiUrl}/acoes/horaNegociacao`, {
+    headers: {
+      Authorization: `Bearer: ${localStorage.getItem('token')}`,
+    },
+  });
+  const minuto = response.data;
+  console.log(minuto);
+  return minuto;
+}
+
+async function avancarRelogio(acrescimo) {
+  const token = localStorage.getItem('token');
+  const novoMinuto = minutoNegociacao.value + parseInt(acrescimo);
+
+  try {
+    const response = await axios.put(
+      `${config.apiUrl}/acoes/horaNegociacao/atualizar`,
+      { novoMinuto },
+      {
+        headers: {
+          Authorization: `Bearer: ${token}`, // com dois pontos, conforme seu backend
+        },
+      },
+    );
+
+    console.log(response.data.message); // "Hora de negociação atualizada para 14:xx com sucesso."
+    // aqui você pode atualizar UI, exibir alerta, etc.
+  } catch (err) {
+    if (err.response) {
+      console.error('Erro do servidor:', err.response.data.message);
+    } else {
+      console.error('Erro de rede:', err.message);
+    }
+  }
+
+  minutoNegociacao.value = await obterMinutoNegociacao();
+  acoesInteresse.value = await buscarAcoesInteresse();
+}
+
 onMounted(async () => {
   acoesInteresse.value = await buscarAcoesInteresse();
+  minutoNegociacao.value = await obterMinutoNegociacao();
 });
 </script>
 
