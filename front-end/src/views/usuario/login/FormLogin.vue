@@ -47,7 +47,10 @@
         <v-text-field
           class="mb-4"
           label="Senha"
+          :type="mostraSenha ? 'text' : 'password'"
           v-model="form.senha"
+          :append-inner-icon="mostraSenha ? 'mdi-eye-off' : 'mdi-eye'"
+          @click:append-inner="mostraSenha = !mostraSenha"
           :disabled="loginBemSucedido === true"
           :rules="[() => form.senha.length > 0 || 'Campo obrigatório']"
         ></v-text-field>
@@ -57,7 +60,7 @@
             :loading="processandoLogin"
             :disabled="!validarFormulario() || loginBemSucedido === true"
             :class="[
-              'w-100 mb-2',
+              'w-100',
               { 'opacity-30 text-grey-lighten': !validarFormulario() },
               { 'opacity-100 bg-primary': validarFormulario() },
             ]"
@@ -100,6 +103,7 @@ const form = ref({
 const loginBemSucedido = ref(null);
 const processandoLogin = ref(false);
 const mensagemErro = ref('Ocorreu um erro no servidor');
+const mostraSenha = ref(false);
 
 function validarFormulario() {
   return form.value.email.length >= 1 && form.value.senha.length >= 1;

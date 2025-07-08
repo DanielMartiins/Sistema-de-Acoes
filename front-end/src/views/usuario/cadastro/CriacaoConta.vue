@@ -17,12 +17,7 @@
     </div>
 
     <div>
-      <v-alert
-        v-if="cadastroBemSucedido === true"
-        type="success"
-        class="mb-2"
-        style="width: 400px"
-      >
+      <v-alert v-if="cadastroBemSucedido === true" type="success" class="mb-2" style="width: 400px">
         <div class="d-flex justify-space-between align-center">
           Conta criada com sucesso!
           <router-link class="link" href :to="{ name: 'login' }">
@@ -49,8 +44,11 @@
         <v-text-field
           class="mb-4"
           label="Senha"
+          :type="mostraSenha ? 'text' : 'password'"
           v-model="form.senha"
           hint="Mínimo de 8 caracteres, contendo letra e número"
+          :append-inner-icon="mostraSenha ? 'mdi-eye-off' : 'mdi-eye'"
+          @click:append-inner="mostraSenha = !mostraSenha"
           persistent-hint
           :disabled="cadastroBemSucedido === true"
           :rules="[
@@ -64,7 +62,10 @@
         <v-text-field
           class="mb-4"
           label="Senha Repetida"
+          :type="mostraSenhaRepetida ? 'text' : 'password'"
           v-model="form.senhaRepetida"
+          :append-inner-icon="mostraSenhaRepetida ? 'mdi-eye-off' : 'mdi-eye'"
+          @click:append-inner="mostraSenhaRepetida = !mostraSenhaRepetida"
           :disabled="cadastroBemSucedido === true"
           :rules="[
             () => !!form.senhaRepetida || 'Campo obrigatório',
@@ -77,7 +78,7 @@
             :disabled="!validarFormulario() || cadastroBemSucedido === true"
             :loading="processandoCadastro"
             :class="[
-              'w-100 mb-2',
+              'w-100',
               { 'opacity-30 text-grey-lighten': !validarFormulario() },
               { 'opacity-100 bg-primary': validarFormulario() },
             ]"
@@ -112,6 +113,8 @@ import MensagemErro from '@/components/MensagemErro.vue';
 const cadastroBemSucedido = ref(null);
 const mensagemErro = ref('Ocorreu um erro no servidor.');
 const processandoCadastro = ref(false);
+const mostraSenha = ref(false);
+const mostraSenhaRepetida = ref(false);
 
 const form = ref({
   email: '',
