@@ -62,32 +62,47 @@
     <v-btn @click="abrirDialogoAdicao" class="ma-5 bg-primary" prepend-icon="mdi-plus-box">
       Adicionar ação</v-btn
     >
-    <v-dialog v-model="dialogoAdicao">
-      <v-card rounded="lg" max-width="400" class="align-center ma-auto" elevation="24">
-        <div>
-          <v-card-title>Selecione uma ação para adicionar</v-card-title>
-        </div>
-        <v-card-text class="d-flex flex-column">
+    <v-dialog v-model="dialogoAdicao" max-width="400">
+      <v-card rounded="lg" class="align-center ma-auto" elevation="24">
+        <v-card-title class="text-h6 text-center" style="font-size: 1rem">
+          Qual ação deseja adicionar?
+        </v-card-title>
+
+        <v-card-text
+          class="lista-outline"
+          style="max-height: 300px; overflow-y: auto; padding-top: 0"
+        >
           <v-row
-            class="align-center justify-center"
-            v-for="(acao, i) in acoesMercado.filter(
+            class="align-center justify-center py-1"
+            v-for="(acao) in acoesMercado.filter(
               (acaoMercado) =>
                 !acoesInteresse.some(
                   (acaoInteresse) => acaoInteresse.ticker === acaoMercado.ticker,
                 ),
             )"
-            :key="i"
+            :key="acao.ticker"
+            no-gutters
           >
-            <v-col>
+            <v-col cols="7" class="px-2" style="font-size: 0.9rem">
               {{ acao.ticker }}
             </v-col>
-            <v-col>
-              <v-btn @click="adicionarAcaoInteresse(acao.ticker)" color="success" variant="outlined"
-                >Adicionar</v-btn
+            <v-col cols="5" class="px-2 text-right">
+              <v-btn
+                @click="adicionarAcaoInteresse(acao.ticker)"
+                size="small"
+                min-width="80px"
+                color="success"
+                variant="outlined"
+                dense
               >
+                Adicionar
+              </v-btn>
             </v-col>
           </v-row>
         </v-card-text>
+        <v-card-actions>
+          <v-btn @click="dialogoAdicao = false">Cancelar</v-btn>
+        </v-card-actions>
       </v-card>
     </v-dialog>
   </div>
@@ -218,5 +233,11 @@ onMounted(async () => {
 
 .bg-secondary-lighten-2 {
   background-color: #303030;
+}
+
+.lista-outline {
+  max-height: 300px;
+  border-radius: 5px;
+  border: 1px solid #303030
 }
 </style>
