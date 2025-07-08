@@ -64,11 +64,11 @@
           </div>
           <div
             class="d-flex bg-secondary flex-column align-center justify-center w-100 h-100"
-            v-else
           >
-            <v-card class="pa-5 text-center" min-height="154" elevation="0">
-              <v-icon size="50px">mdi-alert-box-outline</v-icon>
-              <v-card-text> Você chegou ao fim da sua listagem de ações de interesse </v-card-text>
+
+            <v-card class="d-flex text-center opacity-60" min-height="154" elevation="0">
+              <v-icon class="pt-5" size="30px">mdi-information-outline</v-icon>
+              <v-card-text class="text-caption">Nenhuma ação a mais para exibir.</v-card-text>
             </v-card>
           </div>
         </div>
@@ -146,7 +146,6 @@ import LinhaAcaoInteresse from '@/components/LinhaAcaoInteresse.vue';
 import axios from 'axios';
 import { config } from '@/config';
 
-const carregando = ref(false);
 const acoesInteresse = ref([]);
 const acoesMercado = ref([]);
 const dialogoRemocao = ref(false);
