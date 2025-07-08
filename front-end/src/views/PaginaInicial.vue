@@ -31,7 +31,7 @@
       </h4>
       <div class="tabela-box">
         <!-- Cabeçalho fixo -->
-        <v-row class="bg-primary font-weight-bold pa-2 pt-1 pb-1" no-gutters>
+        <v-row class="text-subtitle-2 bg-primary font-weight-bold pa-2 pt-1 pb-1" no-gutters>
           <v-col cols="2">Ticker</v-col>
           <v-col cols="2" class="text-end">Preço</v-col>
           <v-col class="text-end">Variação $</v-col>
@@ -55,10 +55,9 @@
           >
             <v-card class="pa-5 text-center" elevation="0">
               <v-icon size="75px">mdi-alert-box-outline</v-icon>
-              <v-card-title>Ops!</v-card-title>
               <v-card-text
-                >Parece que você não possui ações de interesse para serem exibidas. <br />Adicione
-                ações de interesse para vê-las nessa lista</v-card-text
+                >Parece que sua lista está vazia <br />Adicione
+                ações para visualizá-las nessa lista!</v-card-text
               >
             </v-card>
           </div>
@@ -91,7 +90,7 @@
 
           <v-card-text
             class="lista-outline"
-            style="max-height: 300px; overflow-y: auto; padding-top: 0"
+            style="max-height: 75%; overflow-y: auto; padding-top: 0"
           >
             <v-row
               class="align-center justify-center py-1"
@@ -294,7 +293,7 @@ onMounted(async () => {
 
 .tabela-container {
   width: 99%;
-  max-width: 720px;
+  max-width: 1080px;
 }
 
 .tabela-box {
