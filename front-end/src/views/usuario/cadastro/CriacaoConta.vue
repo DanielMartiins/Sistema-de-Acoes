@@ -60,6 +60,7 @@
         >
         </v-text-field>
         <v-text-field
+          ref="senhaRepetidaField"
           class="mb-4"
           label="Senha Repetida"
           :type="mostraSenhaRepetida ? 'text' : 'password'"
@@ -121,6 +122,13 @@ const form = ref({
   senha: '',
   senhaRepetida: '',
 });
+
+// Quando a senha original mudar, revalida o campo senhaRepetida
+const senhaRepetidaField = ref(null);
+watch(() => form.value.senha, () => {
+  if (form.value.senhaRepetida)
+    senhaRepetidaField.value?.validate()
+})
 
 function processarCadastro() {
   processandoCadastro.value = true;
