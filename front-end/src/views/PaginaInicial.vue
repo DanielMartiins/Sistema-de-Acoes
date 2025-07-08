@@ -1,6 +1,6 @@
 <template>
-  <NavegadorSidebar />
 
+  <!--Diálogo para remover ação da lista -->
   <v-dialog v-model="dialogoRemocao" id="dialogo-remocao">
     <v-card rounded="lg" max-width="400" class="align-center ma-auto" elevation="24">
       <v-icon class="ma-5" color="warning" size="100px"> mdi-alert-outline </v-icon>
@@ -36,7 +36,7 @@
           <v-col cols="2" class="text-end">Preço</v-col>
           <v-col class="text-end">Variação $</v-col>
           <v-col class="text-end">Variação %</v-col>
-          <v-col cols="2" class="text-center"></v-col>
+          <v-col cols="3" class="text-end"></v-col>
         </v-row>
 
         <!-- Parte rolável -->
@@ -75,6 +75,7 @@
       </div>
     </v-container>
 
+    <!-- Botao e diálogo para adicionar uma ação do mercado -->
     <div class="d-flex">
       <div>
         <v-btn @click="abrirDialogoAdicao" class="ma-5 bg-primary" prepend-icon="mdi-plus-box">
@@ -141,6 +142,8 @@
         />
       </div>
     </div>
+
+    <!-- Botao e diálogo para comprar uma ação da lista -->
   </div>
 </template>
 
