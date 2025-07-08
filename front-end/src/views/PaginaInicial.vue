@@ -1,5 +1,26 @@
 <template>
   <NavegadorSidebar />
+
+  <v-dialog v-model="dialogoRemocao" id="dialogo-remocao">
+    <v-card rounded="lg" max-width="400" class="align-center ma-auto" elevation="24">
+      <v-icon class="ma-5" color="warning" size="100px"> mdi-alert-outline </v-icon>
+      <v-card-title>Remover ação da lista</v-card-title>
+      <v-card-text class="text-center">
+        Confirmar remoção do ticker
+        <span class="font-weight-bold ma-0">{{ tickerParaRemover }}</span>
+        ?
+        <br />(Você poderá adicioná-lo novamente depois)
+      </v-card-text>
+      <v-divider></v-divider>
+      <v-card-actions>
+        <v-btn @click="dialogoRemocao = false">Cancelar</v-btn>
+        <v-btn variant="outlined" @click="removerAcao" prepend-icon="mdi-delete" color="error"
+          >Remover</v-btn
+        >
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+
   <div class="tabela-wrapper">
     <v-container class="pa-0 tabela-container">
       <h4 class="text-h3 text-center ma-2">Mercado de Ações</h4>
@@ -18,14 +39,14 @@
           <LinhaAcaoInteresse
             class="pl-2 pr-2"
             @removerAcao="abrirDialogoRemocao"
-            v-for="(acao, i) in acoes"
+            v-for="(acao, i) in acoesInteresse"
             :key="i"
             :acao="acao"
             :index="i"
           />
         </div>
 
-        <div class="d-flex w-100 h-100" v-if="acoes.length === 0">
+        <div class="d-flex w-100 h-100" v-if="acoesInteresse.length === 0">
           <v-card class="align-center pa-5 justify-center text-center w-100 h-100">
             <v-icon size="75px">mdi-alert-box-outline</v-icon>
             <v-card-title>Ops!</v-card-title>
@@ -37,24 +58,39 @@
         </div>
       </div>
     </v-container>
+
+    <v-btn @click="abrirDialogoAdicao" class="ma-5 bg-primary" prepend-icon="mdi-plus-box">
+      Adicionar ação</v-btn
+    >
+    <v-dialog v-model="dialogoAdicao">
+      <v-card rounded="lg" max-width="400" class="align-center ma-auto" elevation="24">
+        <div>
+          <v-card-title>Selecione uma ação para adicionar</v-card-title>
+        </div>
+        <v-card-text class="d-flex flex-column">
+          <v-row
+            class="align-center justify-center"
+            v-for="(acao, i) in acoesMercado.filter(
+              (acaoMercado) =>
+                !acoesInteresse.some(
+                  (acaoInteresse) => acaoInteresse.ticker === acaoMercado.ticker,
+                ),
+            )"
+            :key="i"
+          >
+            <v-col>
+              {{ acao.ticker }}
+            </v-col>
+            <v-col>
+              <v-btn @click="adicionarAcaoInteresse(acao.ticker)" color="success" variant="outlined"
+                >Adicionar</v-btn
+              >
+            </v-col>
+          </v-row>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </div>
-  <v-dialog v-model="dialogoRemocao" id="dialogo-remocao">
-    <v-card rounded="lg" max-width="400" class="align-center ma-auto" elevation="24">
-      <v-icon class="ma-5" color="warning" size="100px"> mdi-alert-outline </v-icon>
-      <v-card-title>Remover ação da lista</v-card-title>
-      <v-card-text class="text-center">
-        Confirmar remoção do ticker
-        <span class="font-weight-bold ma-0">{{ tickerParaRemover }}</span>
-        ?
-        <br />(Você poderá adicioná-lo novamente depois)
-      </v-card-text>
-      <v-divider></v-divider>
-      <v-card-actions>
-        <v-btn @click="dialogoRemocao = false">Cancelar</v-btn>
-        <v-btn variant="outlined" @click="removerAcao" prepend-icon="mdi-delete" color="error">Remover</v-btn>
-      </v-card-actions>
-    </v-card>
-  </v-dialog>
 </template>
 
 <script setup>
@@ -64,8 +100,10 @@ import LinhaAcaoInteresse from '@/components/LinhaAcaoInteresse.vue';
 import axios from 'axios';
 import { config } from '@/config';
 
-const acoes = ref([]);
+const acoesInteresse = ref([]);
+const acoesMercado = ref([]);
 const dialogoRemocao = ref(false);
+const dialogoAdicao = ref(false);
 const tickerParaRemover = ref('');
 const indexParaRemover = ref('');
 
@@ -80,7 +118,7 @@ async function removerAcao() {
       },
     });
 
-    acoes.value.splice(indexParaRemover.value, 1);
+    acoesInteresse.value.splice(indexParaRemover.value, 1);
     dialogoRemocao.value = false;
     return true;
   } catch (err) {
@@ -103,14 +141,51 @@ async function buscarAcoesInteresse() {
   }
 }
 
+async function buscarAcoesMercado() {
+  try {
+    const response = await axios.get(`${config.apiUrl}/acoes/listarAcoesMercado`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
+    return response.data;
+  } catch (err) {
+    return [];
+  }
+}
+
 function abrirDialogoRemocao(ticker, index) {
   tickerParaRemover.value = ticker;
   indexParaRemover.value = index;
   dialogoRemocao.value = true;
 }
 
+async function abrirDialogoAdicao() {
+  acoesMercado.value = await buscarAcoesMercado();
+  dialogoAdicao.value = true;
+}
+
+async function adicionarAcaoInteresse(ticker) {
+  try {
+    await axios.post(
+      `${config.apiUrl}/acoes/acaoInteresse/adicionar`,
+      { ticker: ticker },
+      {
+        headers: {
+          Authorization: `Bearer: ${localStorage.getItem('token')}`,
+        },
+      },
+    );
+    acoesInteresse.value = await buscarAcoesInteresse();
+  } catch (err) {
+    console.log(err);
+  } finally {
+    dialogoAdicao.value = false;
+  }
+}
+
 onMounted(async () => {
-  acoes.value = await buscarAcoesInteresse();
+  acoesInteresse.value = await buscarAcoesInteresse();
 });
 </script>
 
@@ -121,6 +196,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
 }
 
 .tabela-container {
