@@ -15,8 +15,11 @@ const user = computed(() => {
 const isTokenExpired = computed(() => {
   if (!token.value) return true;
   try {
-    const dateNow = Date.now();
-    return dateNow > token.value.exp;
+    if (!user.value || !user.value.exp) return true;
+
+    //Pois Date.now() é medido em milissegundos, e exp em segundos
+    const nowInSeconds = Date.now() / 1000
+    return nowInSeconds > user.value.exp;
   } catch (e) {
     return true;
   }
