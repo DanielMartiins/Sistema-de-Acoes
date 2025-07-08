@@ -35,7 +35,7 @@
         </v-row>
 
         <!-- Parte rolável -->
-        <div class="scroll-tabela d-flex flex-column">
+        <div class="scroll-tabela d-flex h-100 flex-column">
           <LinhaAcaoInteresse
             class="pl-2 pr-2"
             @removerAcao="abrirDialogoRemocao"
@@ -44,17 +44,28 @@
             :acao="acao"
             :index="i"
           />
-        </div>
-
-        <div class="d-flex w-100 h-100" v-if="acoesInteresse.length === 0">
-          <v-card class="align-center pa-5 justify-center text-center w-100 h-100">
-            <v-icon size="75px">mdi-alert-box-outline</v-icon>
-            <v-card-title>Ops!</v-card-title>
-            <v-card-text
-              >Parece que você não possui ações de interesse para serem exibidas. <br />Adicione
-              ações de interesse para vê-las nessa lista</v-card-text
-            >
-          </v-card>
+          <div
+            class="d-flex bg-secondary flex-column align-center justify-center w-100 h-100"
+            v-if="acoesInteresse.length === 0"
+          >
+            <v-card class="pa-5 text-center" elevation="0">
+              <v-icon size="75px">mdi-alert-box-outline</v-icon>
+              <v-card-title>Ops!</v-card-title>
+              <v-card-text
+                >Parece que você não possui ações de interesse para serem exibidas. <br />Adicione
+                ações de interesse para vê-las nessa lista</v-card-text
+              >
+            </v-card>
+          </div>
+          <div
+            class="d-flex bg-secondary flex-column align-center justify-center w-100 h-100"
+            v-else
+          >
+            <v-card class="pa-5 text-center" min-height="154" elevation="0">
+              <v-icon size="50px">mdi-alert-box-outline</v-icon>
+              <v-card-text> Você chegou ao fim da sua listagem de ações de interesse </v-card-text>
+            </v-card>
+          </div>
         </div>
       </div>
     </v-container>
@@ -74,7 +85,7 @@
         >
           <v-row
             class="align-center justify-center py-1"
-            v-for="(acao) in acoesMercado.filter(
+            v-for="acao in acoesMercado.filter(
               (acaoMercado) =>
                 !acoesInteresse.some(
                   (acaoInteresse) => acaoInteresse.ticker === acaoMercado.ticker,
@@ -221,13 +232,13 @@ onMounted(async () => {
 
 .tabela-box {
   border: 2px solid #3f51b5;
-  height: 260px;
+  height: 380px;
   overflow: hidden;
   border-radius: 5px;
 }
 
 .scroll-tabela {
-  max-height: 224px;
+  max-height: 480px;
   overflow-y: auto;
 }
 
@@ -238,6 +249,6 @@ onMounted(async () => {
 .lista-outline {
   max-height: 300px;
   border-radius: 5px;
-  border: 1px solid #303030
+  border: 1px solid #303030;
 }
 </style>
