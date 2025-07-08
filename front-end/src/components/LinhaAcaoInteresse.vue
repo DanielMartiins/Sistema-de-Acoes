@@ -49,7 +49,6 @@ function classePorVariacao(valor) {
 
 function iconeVariacao(valor) {
   valor = Math.round(valor*100)/100; // 2 casas decimais
-  console.log(valor)
   if (valor > 0) return 'mdi-triangle-outline'
   else if (valor < 0) return 'mdi-triangle-down-outline'
   else return 'mdi-triangle-outline'
