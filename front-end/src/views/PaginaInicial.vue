@@ -63,10 +63,10 @@
             </v-card>
           </div>
           <div
-            class="d-flex bg-secondary flex-column align-center justify-center w-100 h-100"
+            class="opacity-60 d-flex bg-secondary flex-column align-center w-100 h-100" v-if="acoesInteresse.length !== 0"
           >
 
-            <v-card class="d-flex text-center opacity-60" min-height="154" elevation="0">
+            <v-card class="d-flex text-center opacity-60" min-height="75" elevation="0">
               <v-icon class="pt-5" size="30px">mdi-information-outline</v-icon>
               <v-card-text class="text-caption">Nenhuma ação a mais para exibir.</v-card-text>
             </v-card>
