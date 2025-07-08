@@ -110,6 +110,6 @@ router.get('/', async function (req, res) {
     const idUsuario = claims.user_id;
     const minutoNegociacao = await obterMinutoNegociacaoUsuario(idUsuario);
 
-    res.json({minuto: minutoNegociacao})
+    res.json(minutoNegociacao)
 });
 module.exports = router;
