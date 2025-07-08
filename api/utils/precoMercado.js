@@ -5,7 +5,8 @@ let tickersMercado = {}; // objeto: { ticker: preco }
 let minutoObtido = null;
 
 async function inicializarTickersMercado() {
-    const url = `https://raw.githubusercontent.com/marciobarros/dsw-simulador-corretora/refs/heads/main/0.json`;
+    const minuto = minutoObtido ? minutoObtido : 0;
+    const url = `https://raw.githubusercontent.com/marciobarros/dsw-simulador-corretora/refs/heads/main/${minuto}.json`;
     const response = await axios.get(url);
     for (const acao of response.data) {
         tickersMercado[acao.ticker] = acao.preco;

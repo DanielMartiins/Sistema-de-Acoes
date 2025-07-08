@@ -14,14 +14,14 @@
     </v-col>
 
     <v-col class="text-end" :class="classePorVariacao(acao.variacaoNominal)">
-      <v-icon v-if="acao.variacaoNominal !== 0" size="smaller">
+      <v-icon v-if="acao.variacaoNominal !== 0" size="x-small" class="icon-achatado font-weight-bold">
         {{ iconeVariacao(acao.variacaoNominal) }}
       </v-icon>
       <span class="numero-fixo-largura">{{ acao.variacaoNominal.toFixed(2) }}</span>
     </v-col>
 
     <v-col class="text-end" :class="classePorVariacao(acao.variacaoPercentual)">
-      <v-icon v-if="acao.variacaoPercentual !== 0" size="smaller">
+      <v-icon v-if="acao.variacaoPercentual !== 0" size="x-small" class="icon-achatado text-weight-bold">
         {{ iconeVariacao(acao.variacaoPercentual) }}
       </v-icon>
       <span class="numero-fixo-largura">{{ acao.variacaoPercentual.toFixed(2) }}%</span>
@@ -41,21 +41,28 @@ defineProps(['acao', 'index'])
 const emit = defineEmits(['removerAcao', 'trocarOrdem'])
 
 function classePorVariacao(valor) {
+  valor = Math.round(valor*100)/100; //2 casas decimais
   if (valor > 0) return 'text-success'
   if (valor < 0) return 'text-error'
   return ''
 }
 
 function iconeVariacao(valor) {
-  if (valor > 0) return 'mdi-arrow-up'
-  if (valor < 0) return 'mdi-arrow-down'
-  return ''
+  valor = Math.round(valor*100)/100; // 2 casas decimais
+  console.log(valor)
+  if (valor > 0) return 'mdi-triangle-outline'
+  else if (valor < 0) return 'mdi-triangle-down-outline'
+  else return 'mdi-triangle-outline'
 }
 </script>
 
 <style scoped>
 .linha-acao {
   min-height: 35px;
+}
+
+.icon-achatado {
+  transform: scaleX(0.8);
 }
 .bg-secondary-lighten {
   background-color: #252525;
