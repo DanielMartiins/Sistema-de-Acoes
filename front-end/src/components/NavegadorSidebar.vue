@@ -1,7 +1,7 @@
 <template>
-  <v-navigation-drawer class="bg-secundary" expand-on-hover rail permanent>
+  <v-navigation-drawer class="bg-secondary" expand-on-hover rail permanent>
     <v-expansion-panels elevation="0" class="mt-2 mb-2">
-      <v-expansion-panel>
+      <v-expansion-panel class="bg-secondary">
         <v-expansion-panel-title class="pa-0">
           <v-list-item density="compact" class="pe-2" style="height: 48px">
             <template #prepend>
