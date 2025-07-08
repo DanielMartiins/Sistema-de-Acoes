@@ -63,9 +63,9 @@
             </v-card>
           </div>
           <div
-            class="opacity-60 d-flex bg-secondary flex-column align-center w-100 h-100" v-if="acoesInteresse.length !== 0"
+            class="opacity-60 d-flex bg-secondary flex-column align-center w-100 h-100"
+            v-if="acoesInteresse.length !== 0"
           >
-
             <v-card class="d-flex text-center opacity-60" min-height="75" elevation="0">
               <v-icon class="pt-5" size="30px">mdi-information-outline</v-icon>
               <v-card-text class="text-caption">Nenhuma ação a mais para exibir.</v-card-text>
@@ -133,7 +133,12 @@
           @click="avancarRelogio(1)"
           class="mt-5 mr-1 bg-secondary-lighten-2"
         />
-        <v-btn text="+5 Min" :disabled="minutoNegociacao + 5 >= 60" @click="avancarRelogio(5)" class="mt-5 ml-1 bg-secondary-lighten-2" />
+        <v-btn
+          text="+5 Min"
+          :disabled="minutoNegociacao + 5 >= 60"
+          @click="avancarRelogio(5)"
+          class="mt-5 ml-1 bg-secondary-lighten-2"
+        />
       </div>
     </div>
   </div>
@@ -190,11 +195,8 @@ async function buscarAcoesInteresse() {
 
 async function buscarAcoesMercado() {
   try {
-    const response = await axios.get(`${config.apiUrl}/acoes/listarAcoesMercado`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
-      },
-    });
+    const url = `https://raw.githubusercontent.com/marciobarros/dsw-simulador-corretora/refs/heads/main/0.json`;
+    const response = await axios.get(url);
     return response.data;
   } catch (err) {
     return [];
