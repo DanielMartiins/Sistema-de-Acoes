@@ -28,15 +28,17 @@
     </v-col>
 
     <v-col cols="2" class="text-center">
-      <v-btn color="error" size="smaller">
+      <v-btn variant="text" @click="emit('removerAcao', acao.ticker, index)" size="smaller">
         <v-icon>mdi-delete</v-icon>
       </v-btn>
+
     </v-col>
   </v-row>
 </template>
 
 <script setup>
 defineProps(['acao', 'index'])
+const emit = defineEmits(['removerAcao', 'trocarOrdem'])
 
 function classePorVariacao(valor) {
   if (valor > 0) return 'text-success'
