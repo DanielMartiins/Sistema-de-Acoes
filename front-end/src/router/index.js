@@ -3,6 +3,7 @@ import PaginaInicial from '@/views/PaginaInicial.vue';
 import CriacaoConta from '@/views/usuario/cadastro/CriacaoConta.vue';
 import FormLogin from '@/views/usuario/login/FormLogin.vue';
 import { useAuth } from '@/composables/useAuth.js';
+import MinhaCarteira from '@/views/MinhaCarteira.vue';
 
 const routes = [
   {
@@ -26,6 +27,12 @@ const routes = [
     name: 'cadastro',
     component: CriacaoConta,
   },
+  {
+    path: '/carteira',
+    name: 'carteira',
+    component: MinhaCarteira,
+  }
+
 ];
 
 const router = createRouter({
