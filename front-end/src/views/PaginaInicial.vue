@@ -90,7 +90,7 @@
 
           <v-card-text
             class="lista-outline"
-            style="max-height: 75%; overflow-y: auto; padding-top: 0"
+            style="max-height: 600px; overflow-y: auto; padding-top: 0"
           >
             <v-row
               class="align-center justify-center py-1"
