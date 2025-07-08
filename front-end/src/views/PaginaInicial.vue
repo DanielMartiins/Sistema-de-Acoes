@@ -23,7 +23,8 @@
 
   <div class="tabela-wrapper">
     <v-container class="pa-0 tabela-container">
-      <h4 class="text-h3 text-center ma-2">Mercado de Ações</h4>
+      <h2 class="text-h2 text-center ma-2">Mercado de Ações</h2>
+      <h4 class="text-h4 text-center ma-2"><v-icon size="30px">mdi-clock-outline</v-icon>14:00</h4>
       <div class="tabela-box">
         <!-- Cabeçalho fixo -->
         <v-row class="bg-primary font-weight-bold pa-2 pt-1 pb-1" no-gutters>
@@ -70,52 +71,62 @@
       </div>
     </v-container>
 
-    <v-btn @click="abrirDialogoAdicao" class="ma-5 bg-primary" prepend-icon="mdi-plus-box">
-      Adicionar ação</v-btn
-    >
-    <v-dialog v-model="dialogoAdicao" max-width="400">
-      <v-card rounded="lg" class="align-center ma-auto" elevation="24">
-        <v-card-title class="text-h6 text-center" style="font-size: 1rem">
-          Qual ação deseja adicionar?
-        </v-card-title>
+    <div class="d-flex">
+      <div>
+        <v-btn @click="abrirDialogoAdicao" class="ma-5 bg-primary" prepend-icon="mdi-plus-box">
+          Adicionar ação
+        </v-btn>
+      </div>
 
-        <v-card-text
-          class="lista-outline"
-          style="max-height: 300px; overflow-y: auto; padding-top: 0"
-        >
-          <v-row
-            class="align-center justify-center py-1"
-            v-for="acao in acoesMercado.filter(
-              (acaoMercado) =>
-                !acoesInteresse.some(
-                  (acaoInteresse) => acaoInteresse.ticker === acaoMercado.ticker,
-                ),
-            )"
-            :key="acao.ticker"
-            no-gutters
+      <v-dialog v-model="dialogoAdicao" max-width="400">
+        <v-card rounded="lg" class="align-center ma-auto" elevation="24">
+          <v-card-title class="text-h6 text-center" style="font-size: 1rem">
+            Qual ação deseja adicionar?
+          </v-card-title>
+
+          <v-card-text
+            class="lista-outline"
+            style="max-height: 300px; overflow-y: auto; padding-top: 0"
           >
-            <v-col cols="7" class="px-2" style="font-size: 0.9rem">
-              {{ acao.ticker }}
-            </v-col>
-            <v-col cols="5" class="px-2 text-right">
-              <v-btn
-                @click="adicionarAcaoInteresse(acao.ticker)"
-                size="small"
-                min-width="80px"
-                color="success"
-                variant="outlined"
-                dense
-              >
-                Adicionar
-              </v-btn>
-            </v-col>
-          </v-row>
-        </v-card-text>
-        <v-card-actions>
-          <v-btn @click="dialogoAdicao = false">Cancelar</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+            <v-row
+              class="align-center justify-center py-1"
+              v-for="acao in acoesMercado.filter(
+                (acaoMercado) =>
+                  !acoesInteresse.some(
+                    (acaoInteresse) => acaoInteresse.ticker === acaoMercado.ticker,
+                  ),
+              )"
+              :key="acao.ticker"
+              no-gutters
+            >
+              <v-col cols="7" class="px-2" style="font-size: 0.9rem">
+                {{ acao.ticker }}
+              </v-col>
+              <v-col cols="5" class="px-2 text-right">
+                <v-btn
+                  @click="adicionarAcaoInteresse(acao.ticker)"
+                  size="small"
+                  min-width="80px"
+                  color="success"
+                  variant="outlined"
+                  dense
+                >
+                  Adicionar
+                </v-btn>
+              </v-col>
+            </v-row>
+          </v-card-text>
+          <v-card-actions>
+            <v-btn @click="dialogoAdicao = false">Cancelar</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+      <div>
+        <span></span>
+        <v-btn @click="abrirDialogoAdicao" class="mt-5 mr-1 bg-secondary-lighten-2"> +1 Min </v-btn>
+        <v-btn @click="abrirDialogoAdicao" class="mt-5 ml-1 bg-secondary-lighten-2"> +5 Min </v-btn>
+      </div>
+    </div>
   </div>
 </template>
 
