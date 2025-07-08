@@ -40,7 +40,7 @@
         prepend-icon="mdi-wallet-bifold"
         title="Minha carteira"
         value="minhacarteira"
-        @click="router.push({ name: 'pagina-inicial' })"
+        @click="router.push({ name: 'carteira' })"
       ></v-list-item>
     </v-list>
   </v-navigation-drawer>
