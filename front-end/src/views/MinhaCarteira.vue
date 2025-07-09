@@ -10,7 +10,7 @@
       <div class="tabela-box">
         <!-- Cabeçalho fixo -->
         <v-row
-          class="text-caption align-center bg-primary font-weight-bold pa-2 pt-1 pb-1"
+          class="text-subtitle-2 align-center bg-primary font-weight-bold pa-2 pt-1 pb-1"
           no-gutters
         >
           <v-col cols="1" class="text-start">Ticker</v-col>
