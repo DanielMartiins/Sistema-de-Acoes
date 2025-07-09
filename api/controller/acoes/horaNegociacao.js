@@ -99,6 +99,7 @@ async function atualizaHoraNegociacao(idUsuario, novoMinuto) {
         `,
         [novoMinuto, idUsuario],
     );
+    await db.end();
 }
 
 router.get('/', async function (req, res) {

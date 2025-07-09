@@ -43,6 +43,7 @@ router.post('/depositar', async function (req, res) {
             `,
             [idUsuario, valor, JSON.stringify({ descricao: descricao })]
         );
+        await db.end();
     } catch (err) {
         console.log(err);
         res.status(500).json({ message: 'Ocorreu um erro no servidor.' });
@@ -82,6 +83,7 @@ router.post('/debitar', async function (req, res) {
             `,
             [idUsuario, valor, JSON.stringify({ descricao: descricao })]
         );
+        await db.end();
         res.json({ message: 'Débito realizado com sucesso.' });
     } catch (err) {
         console.log(err);
@@ -93,9 +95,9 @@ async function obterLancamentosContaCorrente(idUsuario) {
     const db = await getConnection();
     const [consulta] = await db.query(
         `
-        SELECT 
+        SELECT
             DATE_FORMAT(data_hora, '%d-%m-%Y %H:%i:%s') as data_hora,
-            valor, 
+            valor,
             historico
         FROM lancamento_conta_corrente
         WHERE fk_usuario_id = ?
@@ -103,6 +105,7 @@ async function obterLancamentosContaCorrente(idUsuario) {
         `,
         [idUsuario]
     );
+    await db.end();
     return consulta;
 }
 
@@ -122,7 +125,7 @@ async function obterSaldoUsuario(idUsuario) {
         `,
         [idUsuario]
     );
-
+    await db.end();
     return consulta[0].saldo;
 }
 

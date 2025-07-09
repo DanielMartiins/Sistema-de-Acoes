@@ -15,7 +15,7 @@ async function executarOrdensVenda(req, res) {
     const idUsuario = claims.user_id;
 
     try {
-        
+
         const ordensVendaPendentes = await obterOrdensVendaPendentes(idUsuario);
         const minutoNegociacao = await obterMinutoNegociacaoUsuario(idUsuario);
         let qtdeOrdensExecutadas = 0;
@@ -38,7 +38,7 @@ async function executarOrdensVenda(req, res) {
                     quantidade: ordemVenda.quantidade,
                     precoExecucao: precoAtualTicker,
                 });
-                
+
                 console.log(`Ordem de venda com id ${ordemVenda.id} executada`);
             }
         }
@@ -62,7 +62,9 @@ async function executarOrdemVenda(idUsuario, idOrdemVenda, precoExecucao) {
             `,
             [idUsuario, idOrdemVenda, precoExecucao]
         );
+        await db.end();
     } catch (err) {
+        await db.end();
         console.log(err);
         throw new Error('Ocorreu um erro no sistema ao executar a venda');
     }
@@ -73,8 +75,8 @@ async function possuiQuantidadeSuficiente(ticker, quantidadeVenda, idUsuario) {
     const db = await getConnection();
     const [consultaQuantidade] = await db.query(
         `
-        SELECT qtde FROM acao_carteira 
-        WHERE fk_usuario_id = ? AND ticker = ? 
+        SELECT qtde FROM acao_carteira
+        WHERE fk_usuario_id = ? AND ticker = ?
         `,
         [idUsuario, ticker]
     );
@@ -100,6 +102,7 @@ async function obterOrdensVendaPendentes(idUsuario) {
         `,
         [idUsuario]
     );
+    await db.end();
     return ordensVendaPendentes;
 }
 module.exports = {executarOrdensVenda, executarOrdemVenda, possuiQuantidadeSuficiente, obterOrdensVendaPendentes}

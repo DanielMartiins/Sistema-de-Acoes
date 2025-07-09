@@ -91,7 +91,7 @@ async function possuiSaldoSuficiente(idUsuario, preco) {
         `,
         [idUsuario]
     );
-
+    await db.end();
     return consulta[0].saldo >= preco;
 }
 

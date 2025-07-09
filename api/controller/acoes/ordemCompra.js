@@ -79,7 +79,7 @@ router.post('/limitada', async (req, res) => {
 
         const idOrdemCompra = resultado[0][0].insertId;
         await db.end();
-        
+
         if (precoAtual <= precoReferencia) {
             const possuiSaldo = await possuiSaldoSuficiente(idUsuario, precoReferencia);
             console.log(possuiSaldo);
@@ -114,7 +114,7 @@ router.get('/', async function (req, res) {
 
         const resultado = await db.query(
             `
-            SELECT 
+            SELECT
                 ticker,
                 quantidade,
                 DATE_FORMAT(data_hora, '%d-%m-%Y %H:%i:%s') AS dataHoraRegistro,
@@ -166,7 +166,7 @@ async function possuiSaldoSuficiente(idUsuario, preco) {
         WHERE id = ?
         `, [idUsuario]
     )
-
+    await db.end();
     return consulta[0].saldo >= preco;
 }
 

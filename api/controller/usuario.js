@@ -52,6 +52,7 @@ router.post('/criarConta', async function (req, res) {
         res.json({ message: 'O usuário foi registrado.' });
         await db.end();
     } catch (err) {
+        await db.end();
         console.error(err);
         res.status(500).json({ message: 'Erro no servidor ao criar conta' });
     }
@@ -106,6 +107,7 @@ router.post('/login', async function (req, res) {
             config.auth.tokenKey,
             { expiresIn: '2h' },
         );
+        await db.end();
         res.json({ message: 'Login bem sucedido', token });
     } catch (err) {
         console.error(err);
