@@ -26,7 +26,7 @@
     </v-col>
 
     <v-col class="text-center">
-      <span class="numero-fixo-largura" :class="classeCorPorValor(acao.resultado.toFixed())">{{
+      <span class="numero-fixo-largura" :class="classeCorPorValor(acao.resultado.toFixed(2))">{{
         acao.resultado.toFixed(2)
       }}</span>
     </v-col>
