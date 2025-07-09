@@ -30,6 +30,7 @@
             :key="i"
             :acao="acao"
             :index="i"
+            @venderAcao="abrirDialogoVenda"
           />
           <div
             class="d-flex bg-secondary flex-column align-center justify-center w-100 h-100"
@@ -37,10 +38,10 @@
           >
             <v-card class="pa-5 text-center" elevation="0">
               <v-icon size="75px">mdi-alert-box-outline</v-icon>
-              <v-card-text
-                >Parece que você não possui ações na sua carteira. <br />Compre ações no mercado
-                para vê-las nessa lista!</v-card-text
-              >
+              <v-card-text>
+                Parece que você não possui ações na sua carteira. <br />Compre ações no mercado
+                para vê-las nessa lista!
+              </v-card-text>
             </v-card>
           </div>
           <div
@@ -75,7 +76,12 @@
       </div>
     </div>
 
-    <!-- Botao e diálogo para comprar uma ação da lista -->
+    <DialogoVenda
+      v-model="dialogoVenda"
+      :ticker="tickerParaVender"
+      :quantidadeDisponivel="quantidadeParaVender"
+      @vendaFinalizada="recarregarCarteira"
+    />
   </div>
 </template>
 
@@ -84,9 +90,20 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { config } from '@/config';
 import LinhaAcaoCarteira from '@/components/LinhaAcaoCarteira.vue';
+import DialogoVenda from '@/components/DialogoVenda.vue';
 
 const acoesCarteira = ref([]);
 const minutoNegociacao = ref(0);
+
+const dialogoVenda = ref(false);
+const tickerParaVender = ref('');
+const quantidadeParaVender = ref(0);
+
+function abrirDialogoVenda(ticker, quantidade) {
+  tickerParaVender.value = ticker;
+  quantidadeParaVender.value = quantidade;
+  dialogoVenda.value = true;
+}
 
 async function buscarAcoesCarteira() {
   try {
@@ -123,13 +140,12 @@ async function avancarRelogio(acrescimo) {
       { novoMinuto },
       {
         headers: {
-          Authorization: `Bearer: ${token}`, // com dois pontos, conforme seu backend
+          Authorization: `Bearer: ${token}`,
         },
       },
     );
 
-    console.log(response.data.message); // "Hora de negociação atualizada para 14:xx com sucesso."
-    // aqui você pode atualizar UI, exibir alerta, etc.
+    console.log(response.data.message);
   } catch (err) {
     if (err.response) {
       console.error('Erro do servidor:', err.response.data.message);
@@ -139,6 +155,10 @@ async function avancarRelogio(acrescimo) {
   }
 
   minutoNegociacao.value = await obterMinutoNegociacao();
+  acoesCarteira.value = await buscarAcoesCarteira();
+}
+
+async function recarregarCarteira() {
   acoesCarteira.value = await buscarAcoesCarteira();
 }
 
@@ -185,12 +205,9 @@ onMounted(async () => {
   border: 1px solid #303030;
 }
 
-
 ::v-deep(.v-btn.v-btn--disabled) {
-  opacity: 0.3 !important; /* evita que fique apagado demais */
-  background-color: #272727 !important; /* cor de fundo quando desativado */
+  opacity: 0.3 !important;
+  background-color: #272727 !important;
   cursor: not-allowed;
 }
-
-
 </style>
