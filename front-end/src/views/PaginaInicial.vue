@@ -1,5 +1,4 @@
 <template>
-
   <!--Diálogo para remover ação da lista -->
   <v-dialog v-model="dialogoRemocao" id="dialogo-remocao">
     <v-card rounded="lg" max-width="400" class="align-center ma-auto" elevation="24">
@@ -44,6 +43,7 @@
           <LinhaAcaoInteresse
             class="pl-2 pr-2"
             @removerAcao="abrirDialogoRemocao"
+            @comprarAcao="abrirDialogoCompra"
             v-for="(acao, i) in acoesInteresse"
             :key="i"
             :acao="acao"
@@ -56,8 +56,8 @@
             <v-card class="pa-5 text-center" elevation="0">
               <v-icon size="75px">mdi-alert-box-outline</v-icon>
               <v-card-text
-                >Parece que sua lista está vazia <br />Adicione
-                ações para visualizá-las nessa lista!</v-card-text
+                >Parece que sua lista está vazia <br />Adicione ações para visualizá-las nessa
+                lista!</v-card-text
               >
             </v-card>
           </div>
@@ -74,7 +74,7 @@
       </div>
     </v-container>
 
-    <!-- Botao e diálogo para adicionar uma ação do mercado -->
+    <!-- Botões de relógio e de adição de ação + Diálogo adição de ação-->
     <div class="d-flex">
       <div>
         <v-btn @click="abrirDialogoAdicao" class="ma-5 bg-primary" prepend-icon="mdi-plus-box">
@@ -141,25 +141,57 @@
         />
       </div>
     </div>
-
-    <!-- Botao e diálogo para comprar uma ação da lista -->
   </div>
+
+  <DialogoCompra
+    :ticker="tickerParaComprar"
+    :preco="precoTickerParaComprar"
+    v-model="dialogoCompra"
+    @compraFinalizada="mostrarMensagem"
+  ></DialogoCompra>
+  <MensagemSucesso class="popup-mensagem" v-if="mensagemSucesso" :mensagem="mensagemSucesso" />
+  <MensagemErro class="popup-mensagem" v-if="mensagemErro" :mensagem="mensagemErro" />
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import NavegadorSidebar from '@/components/NavegadorSidebar.vue';
 import LinhaAcaoInteresse from '@/components/LinhaAcaoInteresse.vue';
 import axios from 'axios';
 import { config } from '@/config';
+import DialogoCompra from '@/components/DialogoCompra.vue';
+import MensagemErro from '@/components/MensagemErro.vue';
+import MensagemSucesso from '@/components/MensagemSucesso.vue';
+
+const mensagemSucesso = ref('');
+const mensagemErro = ref('');
+
+function mostrarMensagem({ sucesso, mensagem }) {
+  if (sucesso) {
+    mensagemSucesso.value = mensagem;
+    setTimeout(() => (mensagemSucesso.value = ''), 10000);
+  } else {
+    mensagemErro.value = mensagem;
+    setTimeout(() => (mensagemErro.value = ''), 10000);
+  }
+}
 
 const acoesInteresse = ref([]);
+const minutoNegociacao = ref(0);
 const acoesMercado = ref([]);
+
 const dialogoRemocao = ref(false);
-const dialogoAdicao = ref(false);
 const tickerParaRemover = ref('');
 const indexParaRemover = ref('');
-const minutoNegociacao = ref(0);
+
+const dialogoAdicao = ref(false);
+const dialogoCompra = ref(false);
+const tickerParaComprar = ref('');
+const precoTickerParaComprar = ref(0);
+function abrirDialogoCompra(ticker, preco) {
+  tickerParaComprar.value = ticker;
+  precoTickerParaComprar.value = preco;
+  dialogoCompra.value = true;
+}
 
 async function removerAcao() {
   try {
@@ -242,7 +274,6 @@ async function obterMinutoNegociacao() {
     },
   });
   const minuto = response.data;
-  console.log(minuto);
   return minuto;
 }
 
@@ -282,6 +313,15 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.popup-mensagem {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  width: auto;
+  max-width: 300px;
+}
+
 .tabela-wrapper {
   height: 100vh;
   padding: 2rem 0;
@@ -316,5 +356,11 @@ onMounted(async () => {
   max-height: 300px;
   border-radius: 5px;
   border: 1px solid #303030;
+}
+
+::v-deep(.v-btn.v-btn--disabled) {
+  opacity: 0.3 !important; /* evita que fique apagado demais */
+  background-color: #272727 !important; /* cor de fundo quando desativado */
+  cursor: not-allowed;
 }
 </style>

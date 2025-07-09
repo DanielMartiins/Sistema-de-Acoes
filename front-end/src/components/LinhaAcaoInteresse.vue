@@ -37,22 +37,22 @@
 
     <v-col cols="3" class="text-end">
       <div class="ml-2 mr-2 d-flex justify-space-evenly">
-      <v-btn
-        class="mr-1"
-        variant="text"
-        @click="emit('removerAcao', acao.ticker, index)"
-        size="normal"
-      >
-        <v-icon>mdi-delete</v-icon>
-      </v-btn>
-      <v-btn
-        text="Comprar"
-        class="ml-1 text-caption"
-        color="white"
-        @click="emit('comprarAcao', acao.ticker)"
-        variant="outlined"
-        size="x-small"
-      />
+        <v-btn
+          class="mr-1"
+          variant="text"
+          @click="emit('removerAcao', acao.ticker, index)"
+          size="normal"
+        >
+          <v-icon>mdi-delete</v-icon>
+        </v-btn>
+        <v-btn
+          text="Comprar"
+          class="ml-1 text-caption"
+          color="white"
+          @click="emit('comprarAcao', acao.ticker, acao.preco)"
+          variant="outlined"
+          size="x-small"
+        />
       </div>
     </v-col>
   </v-row>
