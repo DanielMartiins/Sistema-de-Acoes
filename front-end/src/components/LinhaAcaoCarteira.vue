@@ -38,7 +38,7 @@
           text="Vender"
           class="ml-1 text-caption"
           color="white"
-          @click="emit('venderAcao', acao.ticker)"
+          @click="emit('venderAcao', acao.ticker, acao.qtde, precoAtual)"
           variant="outlined"
           size="x-small"
         />

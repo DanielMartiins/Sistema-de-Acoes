@@ -3,13 +3,33 @@
     <v-card>
       <v-card-title class="text-h6">Confirmação de Venda</v-card-title>
       <v-card-text>
-        <p>Você deseja vender <strong>{{ quantidade }}</strong> ações de <strong>{{ ticker }}</strong> pelo valor de <strong>R$ {{ preco }}</strong>?</p>
-        <v-select
-          v-model="modoVenda"
-          :items="modos"
-          label="Modo de venda"
-          dense
-        ></v-select>
+        <p>
+          Você deseja vender <strong>{{ quantidade }}</strong> ações de
+          <strong>{{ ticker }}</strong>
+          <span v-if="modoVenda === 'mercado' && typeof preco === 'number'">
+            pelo valor atual de <strong>R$ {{ precoLimiteFormatado }}</strong>?
+          </span>
+          <span v-if="modoVenda === 'limitada'">
+            com preço mínimo de <strong>R$ {{ precoLimiteFormatado }}</strong>?
+          </span>
+        </p>
+
+        <v-radio-group v-model="modoVenda" density="compact" hide-details>
+          <v-radio label="Vender a preço de mercado" value="mercado" />
+          <v-radio label="Venda limitada por preço" value="limitada" />
+        </v-radio-group>
+
+        <v-text-field
+          v-if="modoVenda === 'limitada'"
+          v-model.number="precoLimite"
+          label="Preço mínimo (R$)"
+          type="number"
+          density="compact"
+          variant="outlined"
+          hide-details
+          class="mt-2"
+        />
+
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
@@ -24,18 +44,25 @@
 import { ref, watch } from 'vue';
 import axios from 'axios';
 import { config } from '@/config';
+import { computed } from 'vue';
+
+const precoLimiteFormatado = computed(() => {
+  const precoNum = Number(precoLimite.value);
+  return isNaN(precoNum) ? '0.00' : precoNum.toFixed(2);
+});
 
 const props = defineProps({
   ticker: String,
   preco: Number,
   quantidade: Number,
-  modelValue: Boolean
+  modelValue: Boolean,
 });
 const emit = defineEmits(['update:modelValue', 'vendaFinalizada']);
 
 const dialogoVisivel = ref(props.modelValue);
-const modoVenda = ref('Mercado');
-const modos = ['Mercado', 'Limitada'];
+const modoVenda = ref('mercado');
+const precoLimite = ref(0);
+const modos = ['mercado', 'limitada'];
 
 watch(
   () => props.modelValue,
@@ -56,7 +83,7 @@ async function confirmarVenda() {
   try {
     const token = localStorage.getItem('token');
 
-    if (modoVenda.value === 'Mercado') {
+    if (modoVenda.value === 'mercado') {
       await axios.post(
         `${config.apiUrl}/acoes/ordemVenda/mercado`,
         {
@@ -66,6 +93,7 @@ async function confirmarVenda() {
         {
           headers: {
             Authorization: `Bearer: ${token}`,
+            'Content-Type': 'application/x-www-form-urlencoded',
           },
         }
       );
@@ -75,11 +103,12 @@ async function confirmarVenda() {
         {
           ticker: props.ticker,
           quantidade: props.quantidade,
-          precoReferencia: props.preco,
+          precoReferencia: precoLimite.value,
         },
         {
           headers: {
             Authorization: `Bearer: ${token}`,
+            'Content-Type': 'application/x-www-form-urlencoded',
           },
         }
       );
@@ -93,8 +122,7 @@ async function confirmarVenda() {
   } catch (err) {
     emit('vendaFinalizada', {
       sucesso: false,
-      mensagem:
-        err.response?.data?.message || 'Erro ao tentar vender as ações.',
+      mensagem: err.response?.data?.message || 'Erro ao tentar vender as ações.',
     });
   }
 }

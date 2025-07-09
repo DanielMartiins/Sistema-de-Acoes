@@ -77,11 +77,13 @@
     </div>
 
     <DialogoVenda
-      v-model="dialogoVenda"
-      :ticker="tickerParaVender"
-      :quantidadeDisponivel="quantidadeParaVender"
-      @vendaFinalizada="recarregarCarteira"
-    />
+  v-model="dialogoVenda"
+  :ticker="tickerParaVender"
+  :quantidade="quantidadeParaVender"
+  :preco="precoParaVender"
+  @vendaFinalizada="recarregarCarteira"
+/>
+
   </div>
 </template>
 
@@ -98,12 +100,15 @@ const minutoNegociacao = ref(0);
 const dialogoVenda = ref(false);
 const tickerParaVender = ref('');
 const quantidadeParaVender = ref(0);
+const precoParaVender = ref(0);
 
-function abrirDialogoVenda(ticker, quantidade) {
+function abrirDialogoVenda(ticker, quantidade, preco) {
   tickerParaVender.value = ticker;
   quantidadeParaVender.value = quantidade;
+  precoParaVender.value = preco;
   dialogoVenda.value = true;
 }
+
 
 async function buscarAcoesCarteira() {
   try {
