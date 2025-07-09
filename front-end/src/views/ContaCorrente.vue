@@ -1,7 +1,7 @@
 <template>
   <div class="tabela-wrapper">
     <v-sheet class="pa-10" style="max-width: 400px; width: 100%">
-      <p>Saldo: R$ {{ saldo }}</p>
+      <p>Saldo: R$ {{ saldo.toFixed(2) }}</p>
 
       <v-text-field
         label="Valor do Depósito"
