@@ -60,13 +60,17 @@ BEGIN
 
         -- 5. Realizar depósito na conta do usuário
         INSERT INTO lancamento_conta_corrente(fk_usuario_id, historico, valor, data_hora)
+        
         VALUES(
             p_id_usuario, 
             JSON_OBJECT(
-                'ticker', v_ticker,
-                'quantidade', v_quantidade,
-                'precoExecucao', p_preco_execucao
-            ),
+  				'descricao',
+  				CONCAT(
+    			'ticker: ', v_ticker,
+    			', quantidade: ', v_quantidade,
+    			', precoExecucao: ', p_preco_execucao
+  				)
+			),
             p_preco_execucao * v_quantidade,
             v_data_hora_execucao
         );

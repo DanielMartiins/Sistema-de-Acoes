@@ -50,11 +50,14 @@ BEGIN
         CALL debitar_conta_corrente(
             p_id_usuario,
             p_preco_execucao * v_quantidade,
-            JSON_OBJECT(
-                'ticker', v_ticker,
-                'quantidade', v_quantidade,
-                'precoExecucao', p_preco_execucao
-            )
+			JSON_OBJECT(
+  			'descricao',
+  			CONCAT(
+    			'ticker: ', v_ticker,
+    			', quantidade: ', v_quantidade,
+    			', precoExecucao: ', p_preco_execucao
+  				)
+			)
         );
 
         -- 5. Atualizar ou inserir ação na carteira
