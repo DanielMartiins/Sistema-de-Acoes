@@ -86,7 +86,7 @@ async function retornaSaldoAtual() {
   saldo.value = response.data.saldo;
   lancamentos.value = response.data.lancamentos.map(l => ({
     ...l,
-    historico: JSON.parse(l.historico)
+
   }));
 }
 
