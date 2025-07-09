@@ -4,6 +4,7 @@ import CriacaoConta from '@/views/usuario/cadastro/CriacaoConta.vue';
 import FormLogin from '@/views/usuario/login/FormLogin.vue';
 import { useAuth } from '@/composables/useAuth.js';
 import MinhaCarteira from '@/views/MinhaCarteira.vue';
+import ContaCorrente from '@/views/ContaCorrente.vue';
 
 const routes = [
   {
@@ -37,8 +38,18 @@ const routes = [
         next({ name: 'login' });
       } else next();
     },
-  }
-
+  },
+  {
+    path: '/conta-corrente',
+    name: 'conta-corrente',
+    component: ContaCorrente,
+    beforeEnter: (to, from, next) => {
+      const { isTokenExpired } = useAuth();
+      if (isTokenExpired.value) {
+        next({ name: 'login' });
+      } else next();
+    },
+  },
 ];
 
 const router = createRouter({

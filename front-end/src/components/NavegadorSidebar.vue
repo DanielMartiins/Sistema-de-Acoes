@@ -42,6 +42,12 @@
         value="minhacarteira"
         @click="router.push({ name: 'carteira' })"
       ></v-list-item>
+      <v-list-item
+        prepend-icon="mdi-cash"
+        title="Conta corrente"
+        value="contacorrente"
+        @click="router.push({ name: 'conta-corrente' })"
+      ></v-list-item>
     </v-list>
   </v-navigation-drawer>
 </template>
