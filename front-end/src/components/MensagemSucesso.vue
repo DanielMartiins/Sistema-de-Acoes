@@ -1,7 +1,7 @@
 <template>
   <v-alert v-if="show" type="success" :timeout="timeout">
     <div class="d-flex justify-space-between align-center">
-      Login realizado com sucesso
+      {{mensagem}}
       <v-progress-circular
         class="ml-4"
         v-if="loading"
