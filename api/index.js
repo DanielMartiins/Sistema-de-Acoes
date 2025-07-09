@@ -26,8 +26,8 @@ app.use('/acoes/ordemCompra', ordemCompra);
 var acaoInteresse = require('./controller/acoes/acaoInteresse.js');
 app.use('/acoes/acaoInteresse', acaoInteresse);
 
-var atualizaHoraNegociacao = require('./controller/acoes/atualizaHoraNegociacao.js');
-app.use('/acoes/atualizaHoraNegociacao', atualizaHoraNegociacao);
+var horaNegociacao = require('./controller/acoes/horaNegociacao.js');
+app.use('/acoes/horaNegociacao', horaNegociacao);
 
 var teste = require('./rotasTeste/teste.js');
 app.use('/testes', teste);

@@ -6,7 +6,7 @@ const { executarOrdensVenda } = require('../../utils/ordensVenda');
 const { executarOrdensCompra } = require('../../utils/ordensCompra');
 const router = express.Router();
 
-router.put('/', async function (req, res) {
+router.put('/atualizar', async function (req, res) {
     const claims = verifyToken(req, res);
     if (!claims) {
         res.status(401).json({ message: 'Acesso não autorizado' });
@@ -97,8 +97,20 @@ async function atualizaHoraNegociacao(idUsuario, novoMinuto) {
         )
         WHERE id = ?;
         `,
-        [novoMinuto, idUsuario]
+        [novoMinuto, idUsuario],
     );
+    await db.end();
 }
 
+router.get('/', async function (req, res) {
+    const claims = verifyToken(req, res);
+    if (!claims) {
+        res.status(401).json({ message: 'Acesso não autorizado' });
+        return;
+    }
+    const idUsuario = claims.user_id;
+    const minutoNegociacao = await obterMinutoNegociacaoUsuario(idUsuario);
+
+    res.json(minutoNegociacao)
+});
 module.exports = router;

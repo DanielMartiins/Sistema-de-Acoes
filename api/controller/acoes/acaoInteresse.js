@@ -19,7 +19,7 @@ router.get('/', async function (req, res) {
         const db = await getConnection();
         const [consulta] = await db.query(
             `
-            SELECT ticker, ordem 
+            SELECT ticker, ordem
             FROM acao_interesse
             WHERE fk_usuario_id = ?
             ORDER BY ordem;
@@ -37,6 +37,7 @@ router.get('/', async function (req, res) {
         const acoesInteresse = await Promise.all(
             consulta.map((acao) => montarAcaoInteresse(acao, minutoNegociacao))
         );
+        await db.end();
         res.json(acoesInteresse);
     } catch (err) {
         console.log(err);
@@ -79,6 +80,7 @@ router.post('/adicionar', async function (req, res) {
             `,
             [ticker, idUsuario, (await obterQuantidadeAcoesAdicionadas(idUsuario)) + 1]
         );
+        await db.end();
         res.json({ message: `Ticker ${ticker} adicionado com sucesso` });
     } catch (err) {
         console.log(err);
@@ -98,7 +100,7 @@ router.delete('/remover', async function (req, res) {
     const ordemAcao = req.body.ordemAcao;
     const qtdeAcoesAdicionadas = await obterQuantidadeAcoesAdicionadas(idUsuario)
 
-    
+
     if (qtdeAcoesAdicionadas == 0) {
         res.status(400).json({ message: `A lista de ações está vazia.` });
         return;
@@ -118,8 +120,8 @@ router.delete('/remover', async function (req, res) {
             [idUsuario, ordemAcao]
         );
 
+        await db.end();
         await reordenarAcoesInteresse(idUsuario);
-
         res.json({
             message: `Ação removida da lista de ações de interesse com sucesso.`,
         });
@@ -203,6 +205,7 @@ async function verificaTickerJaAdicionado(idUsuario, ticker) {
         `,
         [idUsuario, ticker]
     );
+    await db.end();
     return consulta.length > 0;
 }
 
@@ -216,6 +219,7 @@ async function obterQuantidadeAcoesAdicionadas(idUsuario) {
         `,
         [idUsuario]
     );
+    await db.end();
     return consulta[0].quantidade;
 }
 
@@ -244,6 +248,8 @@ async function reordenarAcoesInteresse(idUsuario) {
         `,
         [idUsuario]
     );
+
+    await db.end();
 }
 
 async function trocarOrdemAcoes(idUsuario, ordem1, ordem2) {
@@ -254,6 +260,8 @@ async function trocarOrdemAcoes(idUsuario, ordem1, ordem2) {
     `,
         [idUsuario, ordem1, ordem2]
     );
+
+    await db.end();
 }
 
 module.exports = router;

@@ -12,9 +12,9 @@ export default createVuetify({
             dark: {
                 dark: true,
                 colors: {
-                    primary: '#303F9F',
+                    primary: '#3F51B5',
                     secondary: '#212121',
-                    background: '#121212',
+                    background: '#090909',
                 }
             }
         }

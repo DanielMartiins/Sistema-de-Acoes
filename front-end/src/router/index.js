@@ -1,37 +1,60 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import PaginaInicial from '../components/PaginaInicial.vue';
+import PaginaInicial from '@/views/PaginaInicial.vue';
+import CriacaoConta from '@/views/usuario/cadastro/CriacaoConta.vue';
+import FormLogin from '@/views/usuario/login/FormLogin.vue';
+import { useAuth } from '@/composables/useAuth.js';
+import MinhaCarteira from '@/views/MinhaCarteira.vue';
+import ContaCorrente from '@/views/ContaCorrente.vue';
 
 const routes = [
-    {
-        path: '/',
-        name: 'home',
-        component: PaginaInicial,
+  {
+    path: '/',
+    name: 'pagina-inicial',
+    component: PaginaInicial,
+    beforeEnter: (to, from, next) => {
+      const { isTokenExpired } = useAuth();
+      if (isTokenExpired.value) {
+        next({ name: 'login' });
+      } else next();
     },
-    {
-        path: '/about',
-        name: 'about',
-        component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue'),
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component: FormLogin,
+  },
+  {
+    path: '/cadastro',
+    name: 'cadastro',
+    component: CriacaoConta,
+  },
+  {
+    path: '/carteira',
+    name: 'carteira',
+    component: MinhaCarteira,
+    beforeEnter: (to, from, next) => {
+      const { isTokenExpired } = useAuth();
+      if (isTokenExpired.value) {
+        next({ name: 'login' });
+      } else next();
     },
-    {
-        path: '/login',
-        name: 'login',
-        component: () => import('../components/usuario/login/FormLogin.vue'),
+  },
+  {
+    path: '/conta-corrente',
+    name: 'conta-corrente',
+    component: ContaCorrente,
+    beforeEnter: (to, from, next) => {
+      const { isTokenExpired } = useAuth();
+      if (isTokenExpired.value) {
+        next({ name: 'login' });
+      } else next();
     },
-    {
-        path: '/cadastro',
-        name: 'cadastro',
-        component: () => import('../components/usuario/cadastro/CriacaoConta.vue'),
-    },
-    {
-        path: '/dashboard',
-        name: 'dashboard',
-        component: () => import('../components/DashboardUsuario.vue'),
-    },
+  },
 ];
 
 const router = createRouter({
-    history: createWebHistory(process.env.BASE_URL),
-    routes,
+  history: createWebHistory(process.env.BASE_URL),
+  routes,
 });
 
 export default router;

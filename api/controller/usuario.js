@@ -52,6 +52,7 @@ router.post('/criarConta', async function (req, res) {
         res.json({ message: 'O usuário foi registrado.' });
         await db.end();
     } catch (err) {
+        await db.end();
         console.error(err);
         res.status(500).json({ message: 'Erro no servidor ao criar conta' });
     }
@@ -77,7 +78,7 @@ router.post('/login', async function (req, res) {
         );
         usuario = usuario[0][0];
         if (!usuario) {
-            res.status(400).json({message: 'Dados inválidos.'});
+            res.status(400).json({message: 'Email ou senha incorretos.'});
             return;
         }
         var senhaCorreta = await bcrypt.compare(senha, usuario.senha_hash);
@@ -89,7 +90,7 @@ router.post('/login', async function (req, res) {
                 `,
                 [usuario.id],
             );
-            res.status(400).json({ message: 'Dados inválidos.'});
+            res.status(400).json({ message: 'Email ou senha incorretos.'});
             return;
         } else if (senhaCorreta && usuario.numero_falhas_login > 0) {
             await db.query(
@@ -106,6 +107,7 @@ router.post('/login', async function (req, res) {
             config.auth.tokenKey,
             { expiresIn: '2h' },
         );
+        await db.end();
         res.json({ message: 'Login bem sucedido', token });
     } catch (err) {
         console.error(err);
@@ -125,12 +127,12 @@ router.post('/senha/recuperar', async function (req, res) {
     console.log(email);
     // Validação básica dos dados
     if (!verificaEmailValido(email)) {
-        return res.status(400).json({ mensagem: 'Email inválido.' });
+        return res.status(400).json({ message: 'Email inválido.' });
     }
 
     if (!verificaSenhaValida(novaSenha)) {
         return res.status(400).json({
-            mensagem: 'Senha inválida. Deve conter ao menos 8 caracteres, letras e números.',
+            message: 'Senha inválida. Deve conter ao menos 8 caracteres, letras e números.',
         });
     }
 
@@ -151,7 +153,7 @@ router.post('/senha/recuperar', async function (req, res) {
 
         if (!usuario) {
             await db.end();
-            return res.status(400).json({ mensagem: 'Token ou email inválido.' });
+            return res.status(400).json({ message: 'Token ou email inválido.' });
         }
 
         // Verifica validade temporal do token (ex: 1h de validade)
@@ -161,7 +163,7 @@ router.post('/senha/recuperar', async function (req, res) {
 
         if (agora - dataToken > umaHora) {
             await db.end();
-            return res.status(400).json({ mensagem: 'Token expirado.' });
+            return res.status(400).json({ message: 'Token expirado.' });
         }
 
         // Atualiza a senha
@@ -177,10 +179,10 @@ router.post('/senha/recuperar', async function (req, res) {
         );
 
         await db.end();
-        res.json({ mensagem: 'Senha atualizada com sucesso.' });
+        res.json({ message: 'Senha atualizada com sucesso.' });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ mensagem: 'Erro no servidor ao recuperar senha.' });
+        res.status(500).json({ message: 'Erro no servidor ao recuperar senha.' });
     }
 });
 //Token de Nova senha
@@ -189,7 +191,7 @@ router.post('/senha/token', async function (req, res) {
     const email = req.body.email;
 
     if (!verificaEmailValido(email)) {
-        return res.status(400).json({ mensagem: 'Email inválido.' });
+        return res.status(400).json({ message: 'Email inválido.' });
     }
 
     try {
@@ -200,7 +202,7 @@ router.post('/senha/token', async function (req, res) {
         const usuario = resultado[0][0];
         if (!usuario) {
             await db.end();
-            return res.status(404).json({ mensagem: 'Usuário não encontrado.' });
+            return res.status(404).json({ message: 'Usuário não encontrado.' });
         }
 
         const token = crypto.randomBytes(16).toString('hex');
@@ -230,10 +232,10 @@ router.post('/senha/token', async function (req, res) {
 
         await enviarEmail(email, 'Recuperação de senha - Sistema de Ações', htmlEmail);
 
-        res.json({ mensagem: 'Link de recuperação enviado para o e-mail.' });
+        res.json({ message: 'Link de recuperação enviado para o e-mail.' });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ mensagem: 'Erro no servidor ao gerar token.' });
+        res.status(500).json({ message: 'Erro no servidor ao gerar token.' });
     }
 });
 
@@ -245,7 +247,7 @@ router.put('/senha', async function (req, res) {
     // Verifica e decodifica o token
     const payload = verifyToken(req, res);
     if (!payload || !payload.user_id) {
-        return res.status(401).json({ mensagem: 'Token inválido ou ausente.' });
+        return res.status(401).json({ message: 'Token inválido ou ausente.' });
     }
 
     const userId = payload.user_id;
@@ -253,7 +255,7 @@ router.put('/senha', async function (req, res) {
     // Valida a nova senha
     if (!verificaSenhaValida(novaSenha)) {
         return res.status(400).json({
-            mensagem: 'Nova senha inválida. Deve conter ao menos 8 caracteres, letras e números.',
+            message: 'Nova senha inválida. Deve conter ao menos 8 caracteres, letras e números.',
         });
     }
 
@@ -267,13 +269,13 @@ router.put('/senha', async function (req, res) {
         const usuario = resultado[0][0];
         if (!usuario) {
             await db.end();
-            return res.status(404).json({ mensagem: 'Usuário não encontrado.' });
+            return res.status(404).json({ message: 'Usuário não encontrado.' });
         }
 
         const senhaConfere = await bcrypt.compare(senhaAtual, usuario.senha_hash);
         if (!senhaConfere) {
             await db.end();
-            return res.status(400).json({ mensagem: 'Senha atual incorreta.' });
+            return res.status(400).json({ message: 'Senha atual incorreta.' });
         }
 
         const novaSenhaHash = await bcrypt.hash(novaSenha, 10);
@@ -281,10 +283,10 @@ router.put('/senha', async function (req, res) {
         await db.query(`UPDATE usuario SET senha_hash = ? WHERE id = ?;`, [novaSenhaHash, userId]);
 
         await db.end();
-        res.json({ mensagem: 'Senha alterada.' });
+        res.json({ message: 'Senha alterada.' });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ mensagem: 'Erro no servidor ao trocar senha.' });
+        res.status(500).json({ message: 'Erro no servidor ao trocar senha.' });
     }
 });
 //
@@ -355,5 +357,6 @@ async function gerarAçõesInteresse(idUsuario) {
             ordem++;
         }
     }
+    await db.end();
 }
 module.exports = router;

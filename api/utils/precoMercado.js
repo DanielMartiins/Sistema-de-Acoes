@@ -1,11 +1,22 @@
 const axios = require('axios');
 
-let tickersMercado = null, minutoObtido = null;
 let tickersFechamento = null;
+let tickersMercado = {}; // objeto: { ticker: preco }
+let minutoObtido = null;
+
+async function inicializarTickersMercado() {
+    const minuto = minutoObtido ? minutoObtido : 0;
+    const url = `https://raw.githubusercontent.com/marciobarros/dsw-simulador-corretora/refs/heads/main/${minuto}.json`;
+    const response = await axios.get(url);
+    for (const acao of response.data) {
+        tickersMercado[acao.ticker] = acao.preco;
+    }
+}
 
 async function obterPrecoMercado(ticker, minutoNegociacao) {
     if (!ticker) throw new Error(`ERRO: Ticker indefinido`);
     if (ticker.trim() === '') throw new Error(`ERRO: Ticker vazio.`);
+    if (Object.keys(tickersMercado).length === 0) await inicializarTickersMercado();
 
     if (
         minutoNegociacao === null ||
@@ -13,21 +24,29 @@ async function obterPrecoMercado(ticker, minutoNegociacao) {
         !(minutoNegociacao >= 0 && minutoNegociacao <= 59)
     ) {
         throw new Error(
-            `ERRO: O minuto "${minutoNegociacao}" é inválido! Deve ser um inteiro entre 0 e 59`
+            `ERRO: O minuto "${minutoNegociacao}" é inválido! Deve ser um inteiro entre 0 e 59`,
         );
     }
 
-    if (tickersMercado === null || minutoObtido !== minutoNegociacao) {
+    if (minutoObtido !== minutoNegociacao) {
         const url = `https://raw.githubusercontent.com/marciobarros/dsw-simulador-corretora/refs/heads/main/${minutoNegociacao}.json`;
-        let response = await axios.get(url);
-        tickersMercado = response.data;
+        const response = await axios.get(url);
+
+        // Atualiza os preços dos tickers já existentes (ou insere novos)
+        for (const acao of response.data) {
+            tickersMercado[acao.ticker] = acao.preco;
+        }
+
         minutoObtido = minutoNegociacao;
     }
-    const precoAcoes = tickersMercado;
-    const acaoDesejada = precoAcoes.find((acao) => acao.ticker === ticker);
 
-    if (!acaoDesejada) throw new Error(`ERRO: Ticker ${ticker} não encontrado.`);
-    return acaoDesejada.preco;
+    // Retorna o preço atual do ticker
+    const preco = tickersMercado[ticker];
+    if (preco === undefined) {
+        throw new Error(`Ticker "${ticker}" não encontrado no minuto ${minutoNegociacao}`);
+    }
+
+    return preco;
 }
 
 async function obterPrecoFechamento(ticker) {
