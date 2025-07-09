@@ -11,8 +11,8 @@ const routes = [
     name: 'pagina-inicial',
     component: PaginaInicial,
     beforeEnter: (to, from, next) => {
-      const { token } = useAuth();
-      if (!token.value) {
+      const { isTokenExpired } = useAuth();
+      if (isTokenExpired.value) {
         next({ name: 'login' });
       } else next();
     },
@@ -31,6 +31,12 @@ const routes = [
     path: '/carteira',
     name: 'carteira',
     component: MinhaCarteira,
+    beforeEnter: (to, from, next) => {
+      const { isTokenExpired } = useAuth();
+      if (isTokenExpired.value) {
+        next({ name: 'login' });
+      } else next();
+    },
   }
 
 ];
