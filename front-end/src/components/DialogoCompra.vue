@@ -13,15 +13,21 @@
       <v-card-text>
         <v-row class="align-center justify-center my-4" dense>
           <span class="mr-2">Quantidade:</span>
-          <v-btn icon @click="decrementar" size="small" variant="outlined">
-            <v-icon>mdi-minus</v-icon>
-          </v-btn>
 
-          <span class="mx-4 text-h6">{{ quantidade }}</span>
 
-          <v-btn icon @click="incrementar" size="small" variant="outlined">
-            <v-icon>mdi-plus</v-icon>
-          </v-btn>
+          <v-text-field
+            v-model.number="quantidade"
+            type="number"
+            min="1"
+            class="mx-2"
+            style="max-width: 100px"
+            density="compact"
+            hide-details
+            variant="outlined"
+          />
+
+
+
         </v-row>
 
         <v-radio-group v-model="tipoCompra" density="compact" hide-details>
@@ -70,8 +76,8 @@ const props = defineProps({
   },
   preco: {
     type: Number,
-    required: true
-  }
+    required: true,
+  },
 });
 const emit = defineEmits(['update:modelValue', 'compraFinalizada']);
 
