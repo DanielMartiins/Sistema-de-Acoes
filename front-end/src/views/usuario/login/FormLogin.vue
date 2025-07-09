@@ -36,14 +36,15 @@
         ></v-text-field>
 
         <div class="d-flex justify-end mb-1">
-          <router-link
-            class="text-decoration-none text-primary text-caption hover-link"
-            href
-            :to="{ name: 'cadastro' }"
-          >
-            Esqueci minha senha
-          </router-link>
-        </div>
+  <router-link
+    class="text-decoration-none text-primary text-caption hover-link"
+    href
+    :to="{ name: 'recuperar-senha' }"
+  >
+    Esqueci minha senha
+  </router-link>
+</div>
+
         <v-text-field
           class="mb-4"
           label="Senha"

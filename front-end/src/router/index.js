@@ -29,6 +29,11 @@ const routes = [
     component: CriacaoConta,
   },
   {
+  path: '/recuperar-senha',
+  name: 'recuperar-senha',
+  component: () => import('../views/usuario/senha/RecuperarSenha.vue'),
+  },
+  {
     path: '/carteira',
     name: 'carteira',
     component: MinhaCarteira,
@@ -38,6 +43,11 @@ const routes = [
         next({ name: 'login' });
       } else next();
     },
+  },
+  {
+  path: '/usuario/senha/recuperar',
+  name: 'nova-senha',
+  component: () => import('../views/usuario/senha/NovaSenha.vue'),
   },
   {
     path: '/conta-corrente',
