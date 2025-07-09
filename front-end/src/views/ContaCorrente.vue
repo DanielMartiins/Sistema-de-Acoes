@@ -1,19 +1,24 @@
 <template>
   <div class="tabela-wrapper">
-    <v-sheet class="pa-10" style="max-width: 400px; width: 100%">
-      <p>Saldo: R$ {{ saldo }}</p>
+    <v-sheet class="pa-10" style="max-width: 500px; width: 100%">
+      <p class="text-h6 mb-4">Saldo: <strong>R$ {{ saldo.toFixed(2) }}</strong></p>
 
       <v-text-field
         label="Valor do Depósito"
         v-model="valorDeposito"
         type="number"
-
         prefix="R$ "
         dense
         outlined
+        min="0"
       />
 
-      <v-btn color="primary" class="mt-4" @click="fazerDeposito" :disabled="valorDeposito <= 0">
+      <v-btn
+        color="primary"
+        class="mt-2"
+        @click="fazerDeposito"
+        :disabled="valorDeposito <= 0"
+      >
         Depositar
       </v-btn>
 
@@ -22,11 +27,46 @@
         :type="tipoMensagem"
         class="mt-4"
         dense
-        border="left"
+        border="start"
+        variant="tonal"
         prominent
       >
         {{ mensagem }}
       </v-alert>
+
+      <v-divider class="my-6" />
+
+      <div v-if="lancamentos.length > 0">
+        <h3 class="text-h6 mb-2">Extrato da Conta Corrente</h3>
+        <v-table density="compact" class="text-caption">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Valor</th>
+              <th>Descrição</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(lanc, index) in lancamentos" :key="index">
+              <td>{{ lanc.data_hora }}</td>
+              <td :class="lanc.valor >= 0 ? 'text-success' : 'text-error'">
+                R$ {{ lanc.valor.toFixed(2) }}
+              </td>
+              <td>
+                {{
+                  typeof lanc.historico === 'string'
+                    ? JSON.parse(lanc.historico).descricao
+                    : lanc.historico.descricao
+                }}
+              </td>
+            </tr>
+          </tbody>
+        </v-table>
+      </div>
+
+      <div v-else class="text-center mt-4 text-grey">
+        Nenhum lançamento encontrado.
+      </div>
     </v-sheet>
   </div>
 </template>
@@ -36,19 +76,25 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { config } from '@/config';
 
-const saldo = ref(0); // Inicial, pode carregar via API depois
+const saldo = ref(0);
 const valorDeposito = ref(0);
 const mensagem = ref('');
-const tipoMensagem = ref('success'); // success, error, info...
+const tipoMensagem = ref('success');
+const lancamentos = ref([]);
 
-async function retornaSaldoAtual() {
-  const response = await axios.get(`${config.apiUrl}/contaCorrente`, {
-    headers: {
-      Authorization: `Bearer: ${localStorage.getItem('token')}`
-    },
-  });
-  const saldo = response.data.saldo;
-  return saldo;
+async function carregarContaCorrente() {
+  try {
+    const response = await axios.get(`${config.apiUrl}/contaCorrente`, {
+      headers: {
+        Authorization: `Bearer: ${localStorage.getItem('token')}`,
+      },
+    });
+    saldo.value = response.data.saldo;
+    lancamentos.value = response.data.lancamentos || [];
+  } catch (error) {
+    mensagem.value = 'Erro ao buscar saldo/lancamentos.';
+    tipoMensagem.value = 'error';
+  }
 }
 
 async function fazerDeposito() {
@@ -59,32 +105,31 @@ async function fazerDeposito() {
   }
 
   try {
-    // Exemplo de requisição POST para depositar
-    const response = await axios.post(`${config.apiUrl}/contaCorrente/depositar`, {
-      valor: valorDeposito.value,
-      descricao: `Deposito de R$ ${valorDeposito.value}`
-    }, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`,
+    await axios.post(
+      `${config.apiUrl}/contaCorrente/depositar`,
+      {
+        valor: parseFloat(valorDeposito.value),
+        descricao: `Depósito de R$ ${parseFloat(valorDeposito.value).toFixed(2)}`,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
       }
-    });
+    );
 
-    // Atualiza saldo com resposta (supondo que a API retorne o saldo atualizado)
-    saldo.value = await retornaSaldoAtual();
-
+    await carregarContaCorrente();
     mensagem.value = 'Depósito realizado com sucesso!';
     tipoMensagem.value = 'success';
     valorDeposito.value = 0;
-
   } catch (error) {
-    mensagem.value = error.response?.data?.message || 'Erro ao realizar depósito.';
+    mensagem.value =
+      error.response?.data?.message || 'Erro ao realizar depósito.';
     tipoMensagem.value = 'error';
   }
 }
 
-onMounted(async () => {
-  saldo.value = await retornaSaldoAtual();
-})
+onMounted(carregarContaCorrente);
 </script>
 
 <style scoped>
