@@ -22,6 +22,27 @@
         Depositar
       </v-btn>
 
+      <v-divider class="my-4" />
+
+      <v-text-field
+        label="Valor do Débito"
+        v-model="valorDebito"
+        type="number"
+        prefix="R$ "
+        dense
+        outlined
+        min="0"
+      />
+
+      <v-btn
+        color="error"
+        class="mt-2"
+        @click="fazerDebito"
+        :disabled="valorDebito <= 0"
+      >
+        Debitar
+      </v-btn>
+
       <v-alert
         v-if="mensagem"
         :type="tipoMensagem"
@@ -78,6 +99,7 @@ import { config } from '@/config';
 
 const saldo = ref(0);
 const valorDeposito = ref(0);
+const valorDebito = ref(0);
 const mensagem = ref('');
 const tipoMensagem = ref('success');
 const lancamentos = ref([]);
@@ -123,8 +145,38 @@ async function fazerDeposito() {
     tipoMensagem.value = 'success';
     valorDeposito.value = 0;
   } catch (error) {
-    mensagem.value =
-      error.response?.data?.message || 'Erro ao realizar depósito.';
+    mensagem.value = error.response?.data?.message || 'Erro ao realizar depósito.';
+    tipoMensagem.value = 'error';
+  }
+}
+
+async function fazerDebito() {
+  if (valorDebito.value <= 0) {
+    mensagem.value = 'Informe um valor válido para débito.';
+    tipoMensagem.value = 'error';
+    return;
+  }
+
+  try {
+    await axios.post(
+      `${config.apiUrl}/contaCorrente/debitar`,
+      {
+        valor: parseFloat(valorDebito.value),
+        descricao: `Débito de R$ ${parseFloat(valorDebito.value).toFixed(2)}`,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      }
+    );
+
+    await carregarContaCorrente();
+    mensagem.value = 'Débito realizado com sucesso!';
+    tipoMensagem.value = 'success';
+    valorDebito.value = 0;
+  } catch (error) {
+    mensagem.value = error.response?.data?.message || 'Erro ao realizar débito.';
     tipoMensagem.value = 'error';
   }
 }
@@ -142,3 +194,4 @@ onMounted(carregarContaCorrente);
   flex-direction: column;
 }
 </style>
+
