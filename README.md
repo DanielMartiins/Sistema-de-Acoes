@@ -1,35 +1,18 @@
-# sistema-de-acoes
+# Sistema de Ações
+  Último trabalho da disciplina de **Desenvolvimento de Servidor Web** no curso de **Bacharelado em Sistemas de Informação na UNIRIO**, 5° Período, com foco no aprendizado prático de desenvolvimento de uma aplicação web completa(frontend e backend). 
+  
+  A aplicação é um sistema que simula uma corretora eletrônica para negociação de ações.
+### 📄[Enunciado do Trabalho](./EnunciadoTrabalho.pdf)
 
-This template should help get you started developing with Vue 3 in Vite.
 
-## Recommended IDE Setup
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## Tecnologias utilizadas
 
-## Customize configuration
+### Backend
+  ![Tecnologias](https://skillicons.dev/icons?i=expressjs,js,mysql)
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+### Frontend
+  ![Tecnologias](https://skillicons.dev/icons?i=html,css,js,vue,vuetify)
 
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+### Ambiente de execução do servidor web
+![Tecnologias](https://skillicons.dev/icons?i=nodejs)
