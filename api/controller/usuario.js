@@ -245,12 +245,12 @@ router.put('/senha', async function (req, res) {
     var novaSenha = req.body.novaSenha;
 
     // Verifica e decodifica o token
-    const payload = verifyToken(req, res);
-    if (!payload || !payload.user_id) {
+    const claims = verifyToken(req, res);
+    if (!claims || !claims.user_id) {
         return res.status(401).json({ message: 'Token inválido ou ausente.' });
     }
 
-    const userId = payload.user_id;
+    const userId = claims.user_id;
 
     // Valida a nova senha
     if (!verificaSenhaValida(novaSenha)) {
