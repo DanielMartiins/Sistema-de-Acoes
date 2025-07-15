@@ -8,9 +8,6 @@ var bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-var olaMundo = require('./controller/olamundo.js');
-app.use('/olamundo', olaMundo);
-
 var carteira = require('./controller/carteira.js');
 app.use('/carteira', carteira);
 
