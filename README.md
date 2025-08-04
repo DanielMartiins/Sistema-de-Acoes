@@ -17,7 +17,7 @@
  
 OBS: Mantenha esse terminal aberto!
 #### 4. Rodar o front-end da aplicação
-- **Mantenha o terminal anterior aberto** e abra um novo terminal
+- **Mantenha o terminal anterior aberto** e abra um novo terminal na pasta front-end (./sistema-de-acoes/front-end)
 - Rode o comando `npm install` para instalar as dependências do front-end
 - Rode o comando `npm run serve` para rodar o servidor front-end
 
