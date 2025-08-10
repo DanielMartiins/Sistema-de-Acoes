@@ -1,5 +1,5 @@
 CREATE DATABASE sistema_acoes;
-USE DATABASE sistema_acoes;
+USE sistema_acoes;
 
 /* Sistema_Acoes_ModeloLogico: */
 
